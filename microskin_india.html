@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Microskin India — Franchise Territory Explorer</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#f0f4f8}
+    #root{height:100vh;display:flex;flex-direction:column}
+    .leaflet-container{background:#e8eef5!important}
+    .leaflet-control-zoom a{background:#fff!important;color:#1a1f3c!important;border-color:#d0d9ee!important;font-weight:700}
+    .leaflet-control-attribution{background:rgba(255,255,255,0.92)!important;font-size:9px}
+    ::-webkit-scrollbar{width:5px;background:#f0f4f8}
+    ::-webkit-scrollbar-thumb{background:#c5d0e6;border-radius:3px}
+    .phase-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.5px}
+  </style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useMemo,useCallback}=React;
+
+
+const C={
+  bg:"#f0f4f8",surface:"#ffffff",surfaceHi:"#eef2f9",border:"#d0d9ee",
+  text:"#1a1f3c",muted:"#5c6478",
+  p1:"#c0392b",p2:"#b45309",p3:"#0d766a",p4:"#4338ca",
+};
+const PHASE_COLORS={1:C.p1,2:C.p2,3:C.p3,4:C.p4};
+const PHASE_LABELS={
+  1:"Phase 1 — Foundation (Launch Year)",
+  2:"Phase 2 — Major Cities (Year 1–2)",
+  3:"Phase 3 — Secondary Cities (Year 2–3)",
+  4:"Phase 4 — Emerging Markets (Year 3+)",
+};
+
+// v5 Financial Model
+const M={
+  retail:6500,wholesale:2300.5,consultFee:500,
+  clinicDays:17,consPerDay:3,churn:0.22,ppy:3.5,fx:107,
+  tiers:{
+    1:{label:"Mega Metro",baseClients:150,mult:1.25},
+    2:{label:"Tier 1+",baseClients:130,mult:1.22},
+    3:{label:"Tier 1 City",baseClients:120,mult:1.20},
+    4:{label:"Tier 2 City",baseClients:90,mult:1.15},
+  },
+  scen:{conservative:{c:0.75,p:0.85},base:{c:1,p:1},aggressive:{c:1.25,p:1.15}},
+};
+
+function calcT(cityTier,pw,scen="base"){
+  const t=M.tiers[cityTier],s=M.scen[scen];
+  const clients=Math.round(t.baseClients*pw*s.c);
+  const retained=Math.round(clients*(1-M.churn)),churned=clients-retained;
+  const bottles=Math.round(retained*M.ppy*s.p+churned*1);
+  const revenue=bottles*M.retail,gp=revenue-bottles*M.wholesale;
+  const consult=M.clinicDays*M.consPerDay*12*M.consultFee;
+  const income=Math.round(gp+consult);
+  const fee=Math.round(income*t.mult);
+  return{clients,bottles,revenue:Math.round(revenue),gp:Math.round(gp),
+    consult:Math.round(consult),income,fee,feeGBP:Math.round(fee/M.fx)};
+}
+const fmt=n=>n>=1e7?`₹${(n/1e7).toFixed(2)}Cr`:n>=1e5?`₹${(n/1e5).toFixed(1)}L`:`₹${n.toLocaleString("en-IN")}`;
+const fmtGBP=n=>`£${n.toLocaleString()}`;
+
+
+const CITIES=[
+// ══ PHASE 1 — 9 Foundation Cities ══════════════════════════════════════════
+{id:"delhi",name:"Delhi / NCR",state:"Delhi",lat:28.63,lng:77.21,phase:1,cityTier:1,accessible:8276,
+ territories:[
+  {id:"del-1",name:"Delhi – Central",pw:1.5,corridors:"Connaught Place Inner/Outer Circle clinic strip",areas:"Connaught Place, New Delhi, Patel Nagar, Karol Bagh, Rajendra Place"},
+  {id:"del-2",name:"Delhi – South 1",pw:1.4,corridors:"Greater Kailash I/II clinic corridor – premium",areas:"Greater Kailash I & II, Malviya Nagar, Saket, Nehru Place, Hauz Khas"},
+  {id:"del-3",name:"Delhi – South 2",pw:1.3,corridors:"Vasant Vihar clinic strip; Defence Colony Main Rd",areas:"Vasant Kunj, Vasant Vihar, Mehrauli, Defence Colony, Andrews Ganj"},
+  {id:"del-4",name:"Delhi – South West / Dwarka",pw:0.9,corridors:"Dwarka Sector 10/11 clinic cluster; Uttam Nagar market",areas:"Dwarka Sectors 1–23, Uttam Nagar, Bindapur, Janakpuri South"},
+  {id:"del-5",name:"Delhi – West 1",pw:1.0,corridors:"Rajouri Garden main market aesthetics strip; Punjabi Bagh",areas:"Janakpuri, Vikaspuri, Punjabi Bagh, Rajouri Garden, Tilak Nagar"},
+  {id:"del-6",name:"Delhi – West 2",pw:0.8,corridors:"Paschim Vihar clinic corridor; Moti Nagar hospital strip",areas:"Paschim Vihar, Peera Garhi, Nangloi, Moti Nagar, Kirti Nagar"},
+  {id:"del-7",name:"Delhi – North West 1",pw:0.9,corridors:"Rohini Sec 9 main market; Pitampura DSIDC clinic cluster",areas:"Rohini Sectors 1–11, Pitampura, Shalimar Bagh, Shakurpur"},
+  {id:"del-8",name:"Delhi – North West 2",pw:0.7,corridors:"Rohini Sec 16/17 health hub; Rithala clinic node",areas:"Rohini Sectors 12–25, Bawana, Badli, Mundka, Peera Garhi North"},
+  {id:"del-9",name:"Delhi – North",pw:1.0,corridors:"Civil Lines medical corridor; Mukherjee Nagar market strip",areas:"Adarsh Nagar, Azadpur, Mukherjee Nagar, Civil Lines, Model Town"},
+  {id:"del-10",name:"Delhi – North East 1",pw:0.9,corridors:"Shahdara hospital strip; Anand Vihar bus terminal clinic hub",areas:"Shahdara, Krishna Nagar, Vivek Vihar, Anand Vihar, Karkardooma"},
+  {id:"del-11",name:"Delhi – North East 2",pw:0.7,corridors:"Dilshad Garden clinic corridor; Yamuna Vihar market",areas:"Dilshad Garden, Mandoli, Bhajanpura, Mustafabad, Seelampur"},
+  {id:"del-12",name:"Delhi – East 1",pw:1.0,corridors:"Preet Vihar hospital cluster; Laxmi Nagar main market",areas:"Laxmi Nagar, Preet Vihar, Patparganj, IP Extension, Mayur Vihar Ph 1"},
+  {id:"del-13",name:"Delhi – East 2",pw:0.8,corridors:"Mayur Vihar Phase 3 clinic hub; Trilokpuri market",areas:"Mayur Vihar Ph 2 & 3, Kondli, Trilokpuri, Mandawali, Samaspur"},
+ ]},
+
+{id:"mumbai",name:"Mumbai",state:"Maharashtra",lat:19.076,lng:72.877,phase:1,cityTier:1,accessible:5213,
+ territories:[
+  {id:"mum-1",name:"Mumbai – South",pw:1.5,corridors:"Pedder Road clinic strip; Breach Candy Hospital environs",areas:"Colaba, Fort, Nariman Point, Churchgate, Cuffe Parade, Malabar Hill"},
+  {id:"mum-2",name:"Mumbai – Central",pw:1.2,corridors:"Lower Parel Phoenix Mills clinic hub; Dadar TT medical hub",areas:"Dadar, Mahim, Matunga, Prabhadevi, Parel, Lower Parel, Worli"},
+  {id:"mum-3",name:"Mumbai – Bandra–Santacruz",pw:1.4,corridors:"Bandra Linking Rd – premier aesthetics street in Mumbai",areas:"Bandra West & East, Khar, Santacruz West & East, Vile Parle West"},
+  {id:"mum-4",name:"Mumbai – Andheri",pw:1.2,corridors:"Andheri SV Road; DN Nagar clinic cluster; MIDC Marol",areas:"Andheri West & East, Jogeshwari, Vile Parle North, Lokhandwala"},
+  {id:"mum-5",name:"Mumbai – Goregaon–Malad",pw:1.0,corridors:"Malad Link Rd clinic strip; Goregaon Filmcity Rd aesthetics",areas:"Goregaon West & East, Malad West & East, Kandivali South"},
+  {id:"mum-6",name:"Mumbai – Borivali–Dahisar",pw:0.9,corridors:"Borivali station medical cluster; Kandivali East Link Rd",areas:"Borivali West & East, Kandivali East, Dahisar West & East"},
+  {id:"mum-7",name:"Mumbai – Eastern Suburbs",pw:1.0,corridors:"LBS Marg clinic corridor Ghatkopar; Chembur main road",areas:"Kurla, Chembur, Ghatkopar, Vikhroli, Bhandup, Sion"},
+  {id:"mum-8",name:"Mumbai – Powai–Mulund",pw:1.1,corridors:"Hiranandani Powai health hub; Mulund Goregaon Link Rd",areas:"Powai, Mulund West & East, Nahur, Bhandup North, Kanjurmarg"},
+  {id:"mum-9",name:"Mumbai – Thane City",pw:1.0,corridors:"Thane station area clinic cluster; Ghodbunder Rd aesthetics",areas:"Thane City, Kalwa, Mumbra, Diva, Kopri"},
+  {id:"mum-10",name:"Mumbai – Navi Mumbai North",pw:1.0,corridors:"Vashi sector clinic hub; Palm Beach Rd strip; Airoli",areas:"Vashi, Sanpada, Kopar Khairane, Turbhe, Airoli, Ghansoli"},
+  {id:"mum-11",name:"Mumbai – Navi Mumbai South",pw:0.9,corridors:"Kharghar sector clinic strip; Panvel medical hub",areas:"CBD Belapur, Kharghar, Panvel, Kamothe, Ulwe, Taloja"},
+ ]},
+
+{id:"kolkata",name:"Kolkata",state:"West Bengal",lat:22.573,lng:88.364,phase:1,cityTier:1,accessible:3754,
+ territories:[
+  {id:"kol-1",name:"Kolkata – Central / Park Street",pw:1.4,corridors:"Park Street clinic corridor; Camac Street aesthetics hub",areas:"Park Street, Camac Street, Ballygunge, Elgin Rd, Bhawanipur"},
+  {id:"kol-2",name:"Kolkata – North",pw:1.0,corridors:"Shyambazar crossing clinic cluster; Ultadanga hospital hub",areas:"Shyambazar, Ultadanga, Dum Dum, Belgharia, Baranagar, Dunlop"},
+  {id:"kol-3",name:"Kolkata – South",pw:1.1,corridors:"Tollygunge clinic strip; Jadavpur hospital cluster",areas:"Jadavpur, Tollygunge, Behala, Garia, Sonarpur, Regent Park"},
+  {id:"kol-4",name:"Kolkata – East / Salt Lake–New Town",pw:1.3,corridors:"Salt Lake Sec V IT clinic strip; New Town DLF area",areas:"Bidhannagar (Salt Lake Sectors I–V), New Town, Rajarhat, Action Area"},
+  {id:"kol-5",name:"Howrah & SW Kolkata",pw:0.9,corridors:"Howrah Station area medical hub; G.T. Rd clinic corridor",areas:"Howrah City, Shibpur, Liluah, Santragachi, Bally, Serampore"},
+ ]},
+
+{id:"bengaluru",name:"Bengaluru",state:"Karnataka",lat:12.972,lng:77.595,phase:1,cityTier:1,accessible:3448,
+ territories:[
+  {id:"blr-1",name:"Bengaluru – Central / MG Road",pw:1.4,corridors:"MG Road aesthetics corridor; UB City premium clinic strip",areas:"MG Road, UB City, Lavelle Rd, Residency Rd, Richmond Town, Indiranagar"},
+  {id:"blr-2",name:"Bengaluru – SE / Koramangala",pw:1.3,corridors:"Koramangala 5th Block clinic hub; 80 Feet Rd aesthetics",areas:"Koramangala, HSR Layout, BTM Layout, Madiwala, Bellandur"},
+  {id:"blr-3",name:"Bengaluru – South / Jayanagar",pw:1.1,corridors:"Jayanagar 4th Block clinic strip; JP Nagar 24th Main",areas:"Jayanagar, JP Nagar, Banashankari, Padmanabhanagar, Kanakapura Rd"},
+  {id:"blr-4",name:"Bengaluru – South 2 / Electronic City",pw:0.9,corridors:"Electronic City tech medical hub; Bannerghatta Main Rd",areas:"Electronic City, Bommanahalli, Hulimavu, Begur, Hongasandra"},
+  {id:"blr-5",name:"Bengaluru – East / Whitefield",pw:1.1,corridors:"Whitefield Forum area clinic strip; Marathahalli bridge cluster",areas:"Whitefield, Marathahalli, Mahadevapura, ITPL, Varthur, Brookefield"},
+  {id:"blr-6",name:"Bengaluru – North / Hebbal",pw:1.0,corridors:"Hebbal clinic node near flyover; Yelahanka New Town strip",areas:"Hebbal, Yelahanka, Thanisandra, Banaswadi, Kalyan Nagar, RT Nagar"},
+  {id:"blr-7",name:"Bengaluru – West / Rajajinagar",pw:1.0,corridors:"Rajajinagar 2nd Block clinic strip; Malleshwaram 8th Cross",areas:"Rajajinagar, Malleshwaram, Vijayanagar, Yeshwanthpur, Basaveshwaranagar"},
+ ]},
+
+{id:"chennai",name:"Chennai",state:"Tamil Nadu",lat:13.083,lng:80.270,phase:1,cityTier:1,accessible:2751,
+ territories:[
+  {id:"chn-1",name:"Chennai – Central / Egmore",pw:1.2,corridors:"Egmore Nelson Manickam Rd clinic strip; Kilpauk medical hub",areas:"Egmore, Park Town, Kilpauk, Purasawalkam, Aminjikarai, Chetpet"},
+  {id:"chn-2",name:"Chennai – South 1 / Mylapore",pw:1.3,corridors:"Alwarpet clinic cluster; Mylapore traditional medical hub",areas:"Nungambakkam South, Alwarpet, Mylapore, Royapettah, T Nagar"},
+  {id:"chn-3",name:"Chennai – South 2 / Adyar",pw:1.2,corridors:"Adyar LB Rd clinic strip; Velachery Main Rd aesthetics",areas:"Adyar, Kotturpuram, Velachery, Guindy, Saidapet, Thiruvanmiyur"},
+  {id:"chn-4",name:"Chennai – West / Anna Nagar",pw:1.1,corridors:"Anna Nagar 2nd Ave – premier clinic corridor; Vadapalani",areas:"Anna Nagar, Arumbakkam, Vadapalani, Saligramam, Virugambakkam"},
+  {id:"chn-5",name:"Chennai – North / Perambur",pw:0.9,corridors:"Perambur Barracks Rd clinic cluster; Kolathur main market",areas:"Perambur, Kolathur, Villivakkam, Madhavaram, Manali, Ambattur"},
+  {id:"chn-6",name:"Chennai – OMR Corridor",pw:1.0,corridors:"OMR IT corridor clinic strip; Perungudi Apollo Clinic zone",areas:"Sholinganallur, Perungudi, Thoraipakkam, Navalur, Siruseri"},
+ ]},
+
+{id:"hyderabad",name:"Hyderabad",state:"Telangana",lat:17.385,lng:78.487,phase:1,cityTier:1,accessible:2580,
+ territories:[
+  {id:"hyd-1",name:"Hyderabad – Banjara Hills / Jubilee Hills",pw:1.5,corridors:"Banjara Hills Rd No 1 aesthetics corridor – highest density",areas:"Banjara Hills Roads 1–45, Jubilee Hills, Somajiguda, Film Nagar"},
+  {id:"hyd-2",name:"Hyderabad – HiTec City / Gachibowli",pw:1.3,corridors:"HiTec City clinic hub; Kondapur main rd aesthetics",areas:"HiTec City, Madhapur, Kondapur, Gachibowli, Nanakramguda, Manikonda"},
+  {id:"hyd-3",name:"Hyderabad – Secunderabad / Begumpet",pw:1.1,corridors:"SD Rd Secunderabad clinic strip; Ameerpet market hub",areas:"Secunderabad, SD Road, Trimulgherry, Marredpally, Ameerpet, Begumpet"},
+  {id:"hyd-4",name:"Hyderabad – Kukatpally / Miyapur",pw:1.0,corridors:"KPHB clinic corridor; Kukatpally Housing Board main rd",areas:"Kukatpally, Miyapur, Chandanagar, KPHB Colony, Nizampet, Bachupally"},
+  {id:"hyd-5",name:"Hyderabad – LB Nagar / East",pw:0.9,corridors:"LB Nagar clinic hub; Dilsukhnagar Moosarambagh Rd",areas:"LB Nagar, Dilsukhnagar, Kothapet, Hayathnagar, Vanasthalipuram"},
+  {id:"hyd-6",name:"Hyderabad – Old City / South",pw:0.9,corridors:"Abids clinic strip; Mehdipatnam hospital cluster",areas:"Charminar, Abids, Mehdipatnam, Malakpet, Santoshnagar, Attapur"},
+ ]},
+
+{id:"ahmedabad",name:"Ahmedabad",state:"Gujarat",lat:23.023,lng:72.571,phase:1,cityTier:2,accessible:1203,
+ territories:[
+  {id:"ahm-1",name:"Ahmedabad – West / SG Highway",pw:1.4,corridors:"CG Road / SG Hwy aesthetics corridor – prime zone",areas:"Navrangpura, Paldi, Vastrapur, Bodakdev, Satellite, Prahlad Nagar"},
+  {id:"ahm-2",name:"Ahmedabad – North",pw:1.0,corridors:"Gota main rd clinic cluster; Chandlodia township market",areas:"Chandlodia, Gota, Ranip, Nava Vadaj, Sabarmati, Chanakyapuri"},
+  {id:"ahm-3",name:"Ahmedabad – East / Maninagar",pw:1.0,corridors:"Maninagar clinic strip; Nikol township market aesthetics",areas:"Maninagar, Nikol, Naroda, Odhav, Vatwa, Khokhra, Vastral"},
+  {id:"ahm-4",name:"Ahmedabad – South",pw:0.8,corridors:"Vejalpur main rd; Jivraj Park clinic cluster; South Bopal",areas:"Vejalpur, Jivraj Park, Narol, South Bopal, Shela, Sarkhej"},
+ ]},
+
+{id:"surat",name:"Surat",state:"Gujarat",lat:21.170,lng:72.831,phase:1,cityTier:2,accessible:1187,
+ territories:[
+  {id:"sur-1",name:"Surat – South / Adajan",pw:1.4,corridors:"Ghod Dod Rd aesthetics corridor – premium; Adajan clinic hub",areas:"Adajan, Pal, Vesu, Piplod, Ghod Dod Rd, Dumas Rd, City Light"},
+  {id:"sur-2",name:"Surat – Central / Athwalines",pw:1.2,corridors:"Ring Rd clinic hub; Nanpura market strip; Citylight",areas:"Athwalines, Nanpura, Ring Rd zone, Rander Rd, Palanpur Patia"},
+  {id:"sur-3",name:"Surat – North / Katargam",pw:1.0,corridors:"Varachha Rd clinic cluster; Udhna main rd; Katargam",areas:"Katargam, Limbayat, Udhna, Varachha, Kapodra, Lajamni Chowk"},
+  {id:"sur-4",name:"Surat – East / Sachin",pw:0.8,corridors:"Althan-Bhestan new township clinic strip; Sachin GIDC",areas:"Sachin, Pandesara, Bhestan, Althan, Dabholi, Kim"},
+ ]},
+
+{id:"pune",name:"Pune",state:"Maharashtra",lat:18.520,lng:73.857,phase:1,cityTier:2,accessible:1070,
+ territories:[
+  {id:"pun-1",name:"Pune – Central / Deccan",pw:1.3,corridors:"FC Rd / Law College Rd clinic strip – leading aesthetics",areas:"Deccan Gymkhana, Shivajinagar, Sadashiv Peth, FC Rd, Camp"},
+  {id:"pun-2",name:"Pune – East / Koregaon Park",pw:1.4,corridors:"Koregaon Park clinic corridor; Kalyani Nagar aesthetics",areas:"Koregaon Park, Kalyani Nagar, Viman Nagar, Kharadi, Hadapsar"},
+  {id:"pun-3",name:"Pune – West / Baner–Aundh",pw:1.2,corridors:"Baner-Pashan Link Rd clinic strip; Aundh main rd hub",areas:"Baner, Aundh, Balewadi, Pashan, Sus, Wakad"},
+  {id:"pun-4",name:"Pune – North / Pimpri-Chinchwad",pw:0.9,corridors:"Pimpri clinic hub; Old Mumbai-Pune Hwy strip; Nigdi",areas:"Pimpri, Chinchwad, Bhosari, Nigdi, Akurdi, PCMC zone"},
+ ]},
+
+// ══ PHASE 2 — 11 Major Cities ═══════════════════════════════════════════════
+{id:"jaipur",name:"Jaipur",state:"Rajasthan",lat:26.912,lng:75.787,phase:2,cityTier:3,accessible:324,
+ territories:[
+  {id:"jai-1",name:"Jaipur – Civil Lines / C-Scheme",pw:1.4,corridors:"C-Scheme MI Rd clinic corridor – premium; Bani Park",areas:"Civil Lines, C-Scheme, Bani Park, Adarsh Nagar, Jhotwara"},
+  {id:"jai-2",name:"Jaipur – South / Malviya Nagar",pw:1.2,corridors:"Malviya Nagar main rd clinic cluster; Vaishali Nagar",areas:"Malviya Nagar, Mansarovar, Vaishali Nagar, Sanganer, Pratap Nagar"},
+  {id:"jai-3",name:"Jaipur – East / Jagatpura",pw:0.9,corridors:"Tonk Rd clinic strip (Bapu Nagar); Jagatpura RIICO",areas:"Jagatpura, Pratap Nagar, Bapu Nagar, Gopalpura, Sitapura"},
+  {id:"jai-4",name:"Jaipur – Old City / Pink City",pw:0.8,corridors:"MI Rd clinic strip; Sodala main rd aesthetics",areas:"Walled City, Sindhi Camp, Raja Park, Sodala, Shyam Nagar"},
+ ]},
+
+{id:"lucknow",name:"Lucknow",state:"Uttar Pradesh",lat:26.847,lng:80.946,phase:2,cityTier:3,accessible:290,
+ territories:[
+  {id:"lko-1",name:"Lucknow – Gomti Nagar",pw:1.4,corridors:"Gomti Nagar Vipin Khand clinic strip – premium",areas:"Gomti Nagar, Mahanagar, Vibhuti Khand, Vishwas Khand"},
+  {id:"lko-2",name:"Lucknow – Hazratganj / Central",pw:1.2,corridors:"Hazratganj clinic corridor; MG Rd aesthetics hub",areas:"Hazratganj, Aminabad, Chowk, Husainabad, Kaiserbagh"},
+  {id:"lko-3",name:"Lucknow – Aliganj / North",pw:1.0,corridors:"Aliganj Singar Nagar clinic strip; Jankipuram main rd",areas:"Aliganj, Rajajipuram, Chinhat, Jankipuram Vistar"},
+  {id:"lko-4",name:"Lucknow – Alambagh / West",pw:0.8,corridors:"Alambagh clinic cluster; Cantonment station area hub",areas:"Alambagh, Krishnanagar, Naka Hindola, Telibagh, Cantonment"},
+ ]},
+
+{id:"indore",name:"Indore",state:"Madhya Pradesh",lat:22.720,lng:75.858,phase:2,cityTier:3,accessible:243,
+ territories:[
+  {id:"ind-1",name:"Indore – Palasia / Vijay Nagar",pw:1.4,corridors:"MG Rd / Palasia – premier aesthetics corridor",areas:"Palasia, MG Rd, Vijay Nagar, Sapna-Sangeeta, Annapurna Rd"},
+  {id:"ind-2",name:"Indore – Old City / Rajwada",pw:1.0,corridors:"Rajwada market clinic strip; M.T. Hospital area",areas:"Rajwada, Sarafa, South Tukoganj, Geeta Bhawan, Navlakha"},
+  {id:"ind-3",name:"Indore – Super Corridor / East",pw:0.9,corridors:"Scheme 54 new township clinic strip; Aerodrome Rd",areas:"Super Corridor, Rau, Scheme 54 & 78, Aerodrome Rd, Bhawrasla"},
+ ]},
+
+{id:"kanpur",name:"Kanpur",state:"Uttar Pradesh",lat:26.450,lng:80.332,phase:2,cityTier:3,accessible:235,
+ territories:[
+  {id:"knp-1",name:"Kanpur – Civil Lines / Kakadeo",pw:1.4,corridors:"Civil Lines clinic corridor – premium; Kakadeo market",areas:"Civil Lines, Kakadeo, Swaroop Nagar, Cantonment, Arya Nagar"},
+  {id:"knp-2",name:"Kanpur – Govind Nagar / West",pw:1.0,corridors:"Govind Nagar main rd clinic cluster; Rawatpur market",areas:"Govind Nagar, Panki, Rawatpur, Shyam Nagar, Vikas Nagar"},
+  {id:"knp-3",name:"Kanpur – Kalyanpur / East",pw:0.8,corridors:"Kalyanpur clinic strip; Transport Nagar market",areas:"Kalyanpur, Transport Nagar, Juhi Kalan, Lakhanpur"},
+ ]},
+
+{id:"nagpur",name:"Nagpur",state:"Maharashtra",lat:21.146,lng:79.088,phase:2,cityTier:3,accessible:235,
+ territories:[
+  {id:"nag-1",name:"Nagpur – Dharampeth / West",pw:1.4,corridors:"Dharampeth clinic strip – premium; Sitabuldi clinics",areas:"Dharampeth, Sitabuldi, Ramdaspeth, Sadar, Amravati Rd"},
+  {id:"nag-2",name:"Nagpur – Civil Lines / North",pw:1.1,corridors:"Civil Lines medical hub; Shivajinagar clinic strip",areas:"Civil Lines, Shivajinagar, Pratap Nagar, Lakadganj, Kamptee Rd"},
+  {id:"nag-3",name:"Nagpur – Nandanvan / South East",pw:0.8,corridors:"Wardha Rd clinic corridor Nandanvan; Manish Nagar",areas:"Nandanvan, Wathoda, Manish Nagar, Hingna Rd, Ajni"},
+ ]},
+
+{id:"visakhapatnam",name:"Visakhapatnam",state:"Andhra Pradesh",lat:17.687,lng:83.219,phase:2,cityTier:3,accessible:190,
+ territories:[
+  {id:"viz-1",name:"Visakhapatnam – MVP Colony / Steel City",pw:1.3,corridors:"MVP Colony clinic strip; Steel Plant township medical hub",areas:"MVP Colony, Steel Plant Area, Ukkunagaram, Kommadi, Rushikonda"},
+  {id:"viz-2",name:"Visakhapatnam – Beach Rd / Central",pw:1.0,corridors:"CBM Compound clinic corridor; Jagadamba Jn hub",areas:"CBM Compound, Daba Gardens, Jagadamba Jn, Gajuwaka, Pendurthi"},
+ ]},
+
+{id:"bhopal",name:"Bhopal",state:"Madhya Pradesh",lat:23.260,lng:77.413,phase:2,cityTier:3,accessible:190,
+ territories:[
+  {id:"bho-1",name:"Bhopal – New Bhopal / MP Nagar",pw:1.4,corridors:"MP Nagar Zone 1 clinic corridor – premium; Arera Colony",areas:"MP Nagar Zone 1 & 2, Arera Colony, E-7 & E-8, Kolar Rd"},
+  {id:"bho-2",name:"Bhopal – Old Bhopal / Habibganj",pw:1.0,corridors:"Habibganj clinic strip; Shahpura main rd",areas:"Old Bhopal, Habibganj, Shahpura, Berasia Rd, Govindpura"},
+ ]},
+
+{id:"patna",name:"Patna",state:"Bihar",lat:25.594,lng:85.138,phase:2,cityTier:3,accessible:189,
+ territories:[
+  {id:"pat-1",name:"Patna – Bailey Rd / Boring Rd",pw:1.4,corridors:"Boring Rd clinic strip – premium; Bailey Rd aesthetics",areas:"Bailey Rd, Boring Rd, Kankarbagh, Fraser Rd, Exhibition Rd"},
+  {id:"pat-2",name:"Patna – Rajendra Nagar / Danapur",pw:1.0,corridors:"Rajendra Nagar main rd clinic cluster; Danapur Cantonment",areas:"Rajendra Nagar, Rajiv Nagar, Danapur, Khagaul, Phulwari Sharif"},
+ ]},
+
+{id:"vadodara",name:"Vadodara",state:"Gujarat",lat:22.307,lng:73.181,phase:2,cityTier:3,accessible:168,
+ territories:[
+  {id:"vad-1",name:"Vadodara – Alkapuri / RC Dutt",pw:1.4,corridors:"Alkapuri clinic corridor – premium; RC Dutt Rd aesthetics",areas:"Alkapuri, Productivity Rd, RC Dutt Rd, Sayajigunj, Fatehgunj"},
+  {id:"vad-2",name:"Vadodara – Manjalpur / South",pw:1.0,corridors:"Manjalpur main rd clinic hub; Waghodia Rd market",areas:"Manjalpur, Gorwa, Waghodia Rd, Vasna-Bhayli, Nizampura"},
+ ]},
+
+{id:"coimbatore",name:"Coimbatore",state:"Tamil Nadu",lat:11.017,lng:76.956,phase:2,cityTier:3,accessible:161,
+ territories:[
+  {id:"cbe-1",name:"Coimbatore – RS Puram / Race Course",pw:1.4,corridors:"RS Puram clinic strip – premier; Race Course Rd aesthetics",areas:"RS Puram, Saibaba Colony, Race Course, Peelamedu, Avinashi Rd"},
+  {id:"cbe-2",name:"Coimbatore – Gandhipuram / Central",pw:1.0,corridors:"DB Rd clinic hub; Town Hall medical strip",areas:"Gandhipuram, DB Rd, Town Hall, Singanallur, Ondipudur"},
+ ]},
+
+{id:"kochi",name:"Kochi",state:"Kerala",lat:9.931,lng:76.267,phase:2,cityTier:3,accessible:158,
+ territories:[
+  {id:"koc-1",name:"Kochi – Ernakulam / MG Road",pw:1.4,corridors:"MG Rd aesthetics corridor; Panampilly Nagar clinic hub",areas:"MG Rd, Panampilly Nagar, Ravipuram, Edapally, Kakkanad"},
+  {id:"koc-2",name:"Kochi – Fort Kochi / Island",pw:1.0,corridors:"Broadway clinic hub; Kalamassery KINFRA medical zone",areas:"Fort Kochi, Mattancherry, Willingdon Island, Kalamassery"},
+ ]},
+
+// ══ PHASE 3 — Single-Territory Viable Cities ════════════════════════════════
+{id:"vijayawada",name:"Vijayawada",state:"Andhra Pradesh",lat:16.506,lng:80.648,phase:3,cityTier:4,accessible:43,
+ territories:[{id:"vjw-1",name:"Vijayawada – Benz Circle / MG Road",pw:1.0,corridors:"Benz Circle clinic hub; MG Rd aesthetics corridor",areas:"Benz Circle, MG Rd, Eluru Rd, Suryaraopet, Auto Nagar, Krishnalanka"}]},
+
+{id:"aurangabad",name:"Aurangabad",state:"Maharashtra",lat:19.877,lng:75.343,phase:3,cityTier:4,accessible:42,
+ territories:[{id:"aur-1",name:"Aurangabad – CIDCO / Adalat Rd",pw:1.0,corridors:"Adalat Rd clinic strip – premium; CIDCO N-4 aesthetics",areas:"Adalat Rd, CIDCO, Garkheda, TV Centre, Shivajinagar, Osmanpura"}]},
+
+{id:"ranchi",name:"Ranchi",state:"Jharkhand",lat:23.344,lng:85.310,phase:3,cityTier:4,accessible:42,
+ territories:[{id:"ran-1",name:"Ranchi – Full City",pw:1.0,corridors:"Main Rd clinic strip; Hinoo market aesthetics",areas:"Doranda, Hinoo, Lalpur, Main Rd, HEC Colony, Bariatu"}]},
+
+{id:"jabalpur",name:"Jabalpur",state:"Madhya Pradesh",lat:23.181,lng:79.950,phase:3,cityTier:4,accessible:42,
+ territories:[{id:"jbl-1",name:"Jabalpur – Full City",pw:1.0,corridors:"Napier Town/Russell Chowk clinic hub; Vijay Nagar strip",areas:"Vijay Nagar, Wright Town, Adhartal, Napier Town, Russell Chowk"}]},
+
+{id:"srinagar",name:"Srinagar",state:"J&K",lat:34.084,lng:74.797,phase:3,cityTier:4,accessible:41,
+ territories:[{id:"srn-1",name:"Srinagar – Full City",pw:1.0,corridors:"Rajbagh clinic corridor; Residency Rd; Boulevard Rd",areas:"Lal Chowk, Dalgate, Rajbagh, Hyderpora, Panthachowk"}]},
+
+{id:"jamshedpur",name:"Jamshedpur",state:"Jharkhand",lat:22.805,lng:86.203,phase:3,cityTier:4,accessible:39,
+ territories:[{id:"jam-1",name:"Jamshedpur – Full City",pw:1.0,corridors:"Bistupur main rd clinic hub; Sakchi commercial strip",areas:"Bistupur, Sakchi, Kadma, Mango, Jugsalai, Baridih"}]},
+
+{id:"jodhpur",name:"Jodhpur",state:"Rajasthan",lat:26.239,lng:73.024,phase:3,cityTier:4,accessible:39,
+ territories:[{id:"jod-1",name:"Jodhpur – Full City",pw:1.0,corridors:"Residency Rd clinic corridor; Chopasni Rd aesthetics",areas:"Ratanada, Paota, Chopasni Housing Board, Shastri Nagar, Sardarpura"}]},
+
+{id:"raipur",name:"Raipur",state:"Chhattisgarh",lat:21.251,lng:81.630,phase:3,cityTier:4,accessible:38,
+ territories:[{id:"ray-1",name:"Raipur – Full City",pw:1.0,corridors:"Shankar Nagar clinic strip; Pandri market aesthetics",areas:"Shankar Nagar, Tatibandh, Avanti Vihar, Civil Lines, Pandri"}]},
+
+{id:"guwahati",name:"Guwahati",state:"Assam",lat:26.145,lng:91.736,phase:3,cityTier:4,accessible:38,
+ territories:[{id:"guw-1",name:"Guwahati – Full City",pw:1.0,corridors:"Ganeshguri clinic corridor; Bhangagarh clinic hub",areas:"Dispur, Ganeshguri, Ulubari, Bhangagarh, Silpukhuri, Six Mile"}]},
+
+{id:"gwalior",name:"Gwalior",state:"Madhya Pradesh",lat:26.218,lng:78.183,phase:3,cityTier:4,accessible:37,
+ territories:[{id:"gwo-1",name:"Gwalior – Full City",pw:1.0,corridors:"City Centre Maharaj Bada clinic strip; Thatipur market",areas:"Maharaj Bada, City Centre, Morar, Lashkar, Thatipur"}]},
+
+{id:"dhanbad",name:"Dhanbad",state:"Jharkhand",lat:23.795,lng:86.430,phase:3,cityTier:4,accessible:35,
+ territories:[{id:"dhb-1",name:"Dhanbad – Full City",pw:1.0,corridors:"Bank More clinic strip; Hirapur market hub",areas:"Hirapur, Bank More, Jharia, Sindri, Govindpur, Katras"}]},
+
+{id:"amritsar",name:"Amritsar",state:"Punjab",lat:31.634,lng:74.872,phase:3,cityTier:4,accessible:80,
+ territories:[{id:"asr-1",name:"Amritsar – Full City ★",pw:1.0,corridors:"Lawrence Rd / Ranjit Ave clinic corridor – premium",areas:"Lawrence Rd, Ranjit Ave, GT Rd, Mall Rd, Batala Rd, Green Ave"}]},
+
+{id:"chandigarh",name:"Chandigarh",state:"Chandigarh (UT)",lat:30.733,lng:76.779,phase:3,cityTier:4,accessible:79,
+ territories:[{id:"chd-1",name:"Chandigarh – Full UA ★",pw:1.0,corridors:"Sector 8 clinic hub; Sector 34 aesthetics corridor",areas:"Sector 7–22 (premium), Sector 34–35, Mohali, Panchkula, Zirakpur"}]},
+
+{id:"mysuru",name:"Mysuru",state:"Karnataka",lat:12.296,lng:76.639,phase:3,cityTier:4,accessible:74,
+ territories:[{id:"mys-1",name:"Mysuru – Full City ★",pw:1.0,corridors:"Kuvempunagar clinic corridor; Nazarbad market strip",areas:"Hebbal, Kuvempunagar, Vijayanagar, Lakshmipuram, Nazarbad"}]},
+
+{id:"bhubaneswar",name:"Bhubaneswar",state:"Odisha",lat:20.296,lng:85.825,phase:3,cityTier:4,accessible:74,
+ territories:[{id:"bbs-1",name:"Bhubaneswar – Full City ★",pw:1.0,corridors:"Sahid Nagar clinic strip; Chandrasekharpur tech city clinic",areas:"Sahid Nagar, Nayapalli, Patia, Chandrasekharpur, Mancheswar"}]},
+
+{id:"thiruvananthapuram",name:"Thiruvananthapuram",state:"Kerala",lat:8.524,lng:76.937,phase:3,cityTier:4,accessible:72,
+ territories:[{id:"tvm-1",name:"Thiruvananthapuram – Full City ★",pw:1.0,corridors:"MG Rd clinic strip; Pattom Rd aesthetics hub",areas:"Pattom, Vazhuthacaud, Kowdiar, Vanchiyoor, Kesavadasapuram"}]},
+
+{id:"jalandhar",name:"Jalandhar",state:"Punjab",lat:31.326,lng:75.576,phase:3,cityTier:4,accessible:70,
+ territories:[{id:"jal-1",name:"Jalandhar – Full City ★",pw:1.0,corridors:"Model Town clinic corridor – premium; Civil Lines hub",areas:"Model Town, Civil Lines, Burlton Park, Basti Bawa Khel"}]},
+
+{id:"faridabad",name:"Faridabad",state:"Haryana",lat:28.408,lng:77.318,phase:3,cityTier:4,accessible:56,
+ territories:[{id:"far-1",name:"Faridabad – South / NIT",pw:1.0,corridors:"NIT commercial clinic strip; Sector 15–16 market hub",areas:"NIT, Sector 15–22, NHPC Colony, New Industrial Township, Ballabhgarh"}]},
+
+{id:"ludhiana",name:"Ludhiana",state:"Punjab",lat:30.901,lng:75.857,phase:3,cityTier:4,accessible:52,
+ territories:[{id:"ldh-1",name:"Ludhiana – Model Town / West",pw:1.0,corridors:"Model Town clinic strip – premium; Ferozepur Rd aesthetics",areas:"Model Town, Sarabha Nagar, BRS Nagar, Gurdev Nagar, Civil Lines"}]},
+
+{id:"agra",name:"Agra",state:"Uttar Pradesh",lat:27.177,lng:78.008,phase:3,cityTier:4,accessible:50,
+ territories:[{id:"agr-1",name:"Agra – Sanjay Place / Fatehabad",pw:1.0,corridors:"Sanjay Place clinic hub; Fatehabad Rd aesthetics corridor",areas:"Sanjay Place, Civil Lines, MG Rd, Fatehabad Rd, Kamla Nagar"}]},
+
+{id:"nashik",name:"Nashik",state:"Maharashtra",lat:19.998,lng:73.790,phase:3,cityTier:4,accessible:50,
+ territories:[{id:"nas-1",name:"Nashik – College Road / Gangapur",pw:1.0,corridors:"College Rd aesthetics corridor; Canada Corner clinic strip",areas:"College Rd, Gangapur Rd, Dwarka, Panchavati, Canada Corner"}]},
+
+// ══ PHASE 4 — Developing Markets ════════════════════════════════════════════
+{id:"meerut",name:"Meerut",state:"Uttar Pradesh",lat:28.979,lng:77.706,phase:4,cityTier:4,accessible:48,
+ territories:[{id:"mer-1",name:"Meerut – Cantonment / West",pw:1.0,corridors:"Cantonment clinic hub; Western Kutchery Rd aesthetics",areas:"Cantonment, Shastri Nagar, Pallavpuram, Begum Bridge"}]},
+
+{id:"rajkot",name:"Rajkot",state:"Gujarat",lat:22.303,lng:70.802,phase:4,cityTier:4,accessible:48,
+ territories:[{id:"raj-1",name:"Rajkot – Yagnik Rd / Kalawad Rd",pw:1.0,corridors:"Yagnik Rd clinic strip; Kalawad Rd aesthetics corridor",areas:"Yagnik Rd, Kalawad Rd, Mavdi, Raiya, University Rd"}]},
+
+{id:"madurai",name:"Madurai",state:"Tamil Nadu",lat:9.925,lng:78.120,phase:4,cityTier:4,accessible:46,
+ territories:[{id:"mad-1",name:"Madurai – Anna Nagar / KK Nagar",pw:1.0,corridors:"Anna Nagar clinic corridor; Goripalayam hospital strip",areas:"Anna Nagar, KK Nagar, Villapuram, Goripalayam, SS Colony"}]},
+
+{id:"varanasi",name:"Varanasi",state:"Uttar Pradesh",lat:25.318,lng:82.974,phase:4,cityTier:4,accessible:46,
+ territories:[{id:"var-1",name:"Varanasi – Lanka / BHU",pw:1.0,corridors:"Lanka/BHU medical hub – premier; Sigra clinic strip",areas:"Lanka, BHU area, Sigra, Shivpur, Mahmoorganj, Bhelupur"}]},
+
+{id:"prayagraj",name:"Prayagraj",state:"Uttar Pradesh",lat:25.435,lng:81.846,phase:4,cityTier:4,accessible:45,
+ territories:[{id:"pry-1",name:"Prayagraj – Civil Lines / George Town",pw:1.0,corridors:"Civil Lines clinic corridor – premium; MT Rd aesthetics",areas:"Civil Lines, George Town, Kydganj, Mutthiganj, Meerganj"}]},
+
+{id:"kota",name:"Kota",state:"Rajasthan",lat:25.182,lng:75.847,phase:4,cityTier:4,accessible:34,
+ territories:[{id:"kot-1",name:"Kota – Full City",pw:1.0,corridors:"Talwandi clinic strip; Vigyan Nagar market aesthetics",areas:"Talwandi, Vigyan Nagar, Dadabari, Gumanpura, Civil Lines"}]},
+
+{id:"tiruchirappalli",name:"Tiruchirappalli",state:"Tamil Nadu",lat:10.790,lng:78.704,phase:4,cityTier:4,accessible:32,
+ territories:[{id:"tri-1",name:"Tiruchirappalli – Full City",pw:1.0,corridors:"Thillai Nagar clinic strip; Cantonment main rd hub",areas:"Cantonment, Thillai Nagar, Anna Nagar, Woraiyur, Ariyamangalam"}]},
+
+{id:"bareilly",name:"Bareilly",state:"Uttar Pradesh",lat:28.367,lng:79.415,phase:4,cityTier:4,accessible:31,
+ territories:[{id:"bar-1",name:"Bareilly – Full City",pw:1.0,corridors:"Civil Lines clinic corridor; Subhash Nagar market strip",areas:"Civil Lines, Subhash Nagar, Pilibhit Bypass area, Rajendra Nagar"}]},
+
+{id:"solapur",name:"Solapur",state:"Maharashtra",lat:17.686,lng:75.906,phase:4,cityTier:4,accessible:31,
+ territories:[{id:"sol-1",name:"Solapur – Full City",pw:1.0,corridors:"Vijapur Rd clinic strip; Budhwar Peth market hub",areas:"Hotgi Rd, Vijapur Rd, Pune-Solapur Rd, Budhwar Peth"}]},
+
+{id:"guntur",name:"Guntur",state:"Andhra Pradesh",lat:16.307,lng:80.436,phase:4,cityTier:4,accessible:31,
+ territories:[{id:"gun-1",name:"Guntur – Full City",pw:1.0,corridors:"Brodipet clinic hub; Arundalpet main rd strip",areas:"Arundalpet, Brodipet, Kothapet, Nallapadu, Donka Rd"}]},
+
+{id:"warangal",name:"Warangal",state:"Telangana",lat:17.978,lng:79.598,phase:4,cityTier:4,accessible:31,
+ territories:[{id:"war-1",name:"Warangal – Full City",pw:1.0,corridors:"Hanamkonda clinic corridor; Subedari market strip",areas:"Hanamkonda, Kazipet, Subedari, Lashkar Bazar, Nakkalgutta"}]},
+
+{id:"aligarh",name:"Aligarh",state:"Uttar Pradesh",lat:27.884,lng:78.082,phase:4,cityTier:4,accessible:30,
+ territories:[{id:"ali-1",name:"Aligarh – Full City",pw:1.0,corridors:"Civil Lines clinic hub; Marris Rd strip",areas:"Civil Lines, Jamalpur, Marris Rd, Ramghat Rd, Shamshabad Rd"}]},
+
+{id:"salem",name:"Salem",state:"Tamil Nadu",lat:11.664,lng:78.146,phase:4,cityTier:4,accessible:30,
+ territories:[{id:"sal-1",name:"Salem – Full City",pw:1.0,corridors:"Fairlands clinic strip; Shevapet market hub",areas:"Fairlands, Shevapet, Hasthampatti, Suramangalam, Alagapuram"}]},
+
+{id:"tiruppur",name:"Tiruppur",state:"Tamil Nadu",lat:11.108,lng:77.341,phase:4,cityTier:4,accessible:30,
+ territories:[{id:"tir-1",name:"Tiruppur – Full City",pw:1.0,corridors:"Avinashi Rd clinic strip; Palladam Rd aesthetics",areas:"Palladam Rd, Avinashi Rd, Karuvampalayam, Veerapandi"}]},
+
+{id:"hubliDharwad",name:"Hubli-Dharwad",state:"Karnataka",lat:15.362,lng:75.124,phase:4,cityTier:4,accessible:30,
+ territories:[{id:"hub-1",name:"Hubli-Dharwad – Twin City",pw:1.0,corridors:"Hubli old town clinic hub; Kasturba Rd aesthetics",areas:"Hubli Old Town, Keshwapur, Vijayanagar (Hubli), Dharwad City"}]},
+
+{id:"moradabad",name:"Moradabad",state:"Uttar Pradesh",lat:28.839,lng:78.776,phase:4,cityTier:4,accessible:29,
+ territories:[{id:"mor-1",name:"Moradabad – Full City",pw:1.0,corridors:"Civil Lines clinic hub; Ram Ganga Vihar strip",areas:"Civil Lines, Ram Ganga Vihar, Majhola, Katghar, Rampur Rd"}]},
+];
+
+
+// PHASE 1 TERRITORY POLYGONS — rectangular tessellations [lat,lng]
+const TERRITORY_POLYGONS={
+  delhi:{
+    "del-1":[[28.68,77.14],[28.68,77.27],[28.58,77.27],[28.58,77.14]],
+    "del-2":[[28.58,77.18],[28.58,77.27],[28.40,77.27],[28.40,77.18]],
+    "del-3":[[28.58,77.07],[28.58,77.18],[28.40,77.18],[28.40,77.07]],
+    "del-4":[[28.58,76.84],[28.58,77.07],[28.40,77.07],[28.40,76.84]],
+    "del-5":[[28.68,77.09],[28.68,77.14],[28.58,77.14],[28.58,77.09]],
+    "del-6":[[28.68,76.84],[28.68,77.09],[28.58,77.09],[28.58,76.84]],
+    "del-7":[[28.88,77.09],[28.88,77.14],[28.68,77.14],[28.68,77.09]],
+    "del-8":[[28.88,76.84],[28.88,77.10],[28.68,77.10],[28.68,76.84]],
+    "del-9":[[28.88,77.14],[28.88,77.27],[28.68,77.27],[28.68,77.14]],
+    "del-10":[[28.68,77.27],[28.68,77.38],[28.63,77.38],[28.63,77.27]],
+    "del-11":[[28.88,77.27],[28.88,77.38],[28.68,77.38],[28.68,77.27]],
+    "del-12":[[28.64,77.27],[28.64,77.38],[28.56,77.38],[28.56,77.27]],
+    "del-13":[[28.56,77.27],[28.56,77.38],[28.40,77.38],[28.40,77.27]],
+  },
+  mumbai:{
+    "mum-1":[[19.00,72.79],[19.00,72.89],[18.89,72.89],[18.89,72.79]],
+    "mum-2":[[19.04,72.79],[19.04,72.90],[18.99,72.90],[18.99,72.79]],
+    "mum-3":[[19.10,72.79],[19.10,72.89],[19.04,72.89],[19.04,72.79]],
+    "mum-4":[[19.16,72.79],[19.16,72.90],[19.09,72.90],[19.09,72.79]],
+    "mum-5":[[19.23,72.79],[19.23,72.90],[19.16,72.90],[19.16,72.79]],
+    "mum-6":[[19.32,72.79],[19.32,72.92],[19.22,72.92],[19.22,72.79]],
+    "mum-7":[[19.16,72.89],[19.16,73.00],[19.00,73.00],[19.00,72.89]],
+    "mum-8":[[19.22,72.90],[19.22,73.00],[19.16,73.00],[19.16,72.90]],
+    "mum-9":[[19.32,73.00],[19.32,73.12],[19.18,73.12],[19.18,73.00]],
+    "mum-10":[[19.22,73.00],[19.22,73.17],[19.08,73.17],[19.08,73.00]],
+    "mum-11":[[19.08,73.00],[19.08,73.17],[18.97,73.17],[18.97,73.00]],
+  },
+  kolkata:{
+    "kol-1":[[22.58,88.34],[22.58,88.50],[22.50,88.50],[22.50,88.34]],
+    "kol-2":[[22.72,88.34],[22.72,88.50],[22.58,88.50],[22.58,88.34]],
+    "kol-3":[[22.50,88.34],[22.50,88.50],[22.40,88.50],[22.40,88.34]],
+    "kol-4":[[22.72,88.50],[22.72,88.60],[22.40,88.60],[22.40,88.50]],
+    "kol-5":[[22.72,88.26],[22.72,88.34],[22.40,88.34],[22.40,88.26]],
+  },
+  bengaluru:{
+    "blr-1":[[13.00,77.49],[13.00,77.72],[12.94,77.72],[12.94,77.49]],
+    "blr-2":[[12.94,77.60],[12.94,77.72],[12.88,77.72],[12.88,77.60]],
+    "blr-3":[[12.94,77.49],[12.94,77.60],[12.83,77.60],[12.83,77.49]],
+    "blr-4":[[12.83,77.60],[12.83,77.82],[12.76,77.82],[12.76,77.60]],
+    "blr-5":[[13.05,77.69],[13.05,77.82],[12.88,77.82],[12.88,77.69]],
+    "blr-6":[[13.11,77.49],[13.11,77.72],[13.00,77.72],[13.00,77.49]],
+    "blr-7":[[13.11,77.44],[13.11,77.60],[12.94,77.60],[12.94,77.44]],
+  },
+  chennai:{
+    "chn-1":[[13.10,80.20],[13.10,80.30],[13.04,80.30],[13.04,80.20]],
+    "chn-2":[[13.04,80.22],[13.04,80.30],[12.96,80.30],[12.96,80.22]],
+    "chn-3":[[13.005,80.18],[13.005,80.30],[12.88,80.30],[12.88,80.18]],
+    "chn-4":[[13.10,80.10],[13.10,80.22],[12.96,80.22],[12.96,80.10]],
+    "chn-5":[[13.22,80.10],[13.22,80.30],[13.10,80.30],[13.10,80.10]],
+    "chn-6":[[12.96,80.18],[12.96,80.30],[12.82,80.30],[12.82,80.18]],
+  },
+  hyderabad:{
+    "hyd-1":[[17.48,78.40],[17.48,78.52],[17.38,78.52],[17.38,78.40]],
+    "hyd-2":[[17.48,78.28],[17.48,78.40],[17.38,78.40],[17.38,78.28]],
+    "hyd-3":[[17.56,78.44],[17.56,78.62],[17.43,78.62],[17.43,78.44]],
+    "hyd-4":[[17.56,78.28],[17.56,78.44],[17.43,78.44],[17.43,78.28]],
+    "hyd-5":[[17.43,78.38],[17.43,78.56],[17.30,78.56],[17.30,78.38]],
+    "hyd-6":[[17.43,78.56],[17.43,78.65],[17.30,78.65],[17.30,78.56]],
+  },
+  ahmedabad:{
+    "ahm-1":[[23.08,72.49],[23.08,72.57],[22.96,72.57],[22.96,72.49]],
+    "ahm-2":[[23.15,72.45],[23.15,72.62],[23.08,72.62],[23.08,72.45]],
+    "ahm-3":[[23.08,72.57],[23.08,72.66],[22.96,72.66],[22.96,72.57]],
+    "ahm-4":[[22.96,72.49],[22.96,72.66],[22.85,72.66],[22.85,72.49]],
+  },
+  surat:{
+    "sur-1":[[21.20,72.75],[21.20,72.87],[21.09,72.87],[21.09,72.75]],
+    "sur-2":[[21.32,72.87],[21.32,72.93],[21.18,72.93],[21.18,72.87]],
+    "sur-3":[[21.32,72.75],[21.32,72.87],[21.18,72.87],[21.18,72.75]],
+    "sur-4":[[21.25,72.93],[21.25,73.03],[21.09,73.03],[21.09,72.93]],
+  },
+  pune:{
+    "pun-1":[[18.56,73.82],[18.56,73.88],[18.49,73.88],[18.49,73.82]],
+    "pun-2":[[18.58,73.88],[18.58,74.02],[18.52,74.02],[18.52,73.88]],
+    "pun-3":[[18.60,73.72],[18.60,73.82],[18.54,73.82],[18.54,73.72]],
+    "pun-4":[[18.70,73.72],[18.70,74.02],[18.60,74.02],[18.60,73.72]],
+  },
+};
+
+
+// ── REACT APP ────────────────────────────────────────────────────────────────
+function App(){
+  const [selectedCity,setSelectedCity]=useState(null);
+  const [selectedTerritory,setSelectedTerritory]=useState(null);
+  const [activePhases,setActivePhases]=useState({1:true,2:true,3:true,4:true});
+  const [scen,setScen]=useState("base");
+  const [mapView,setMapView]=useState("india"); // "india" | "city"
+  const mapRef=useRef(null);
+  const leafRef=useRef(null);
+  const layersRef=useRef([]);
+
+  const visibleCities=useMemo(()=>CITIES.filter(c=>activePhases[c.phase]),[activePhases]);
+
+  function togglePhase(p){
+    setActivePhases(prev=>({...prev,[p]:!prev[p]}));
+  }
+
+  // Init map
+  useEffect(()=>{
+    if(leafRef.current) return;
+    const m=L.map(mapRef.current,{zoomControl:true,attributionControl:true});
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{
+      attribution:'&copy;<a href="https://www.openstreetmap.org">OSM</a> &copy;<a href="https://carto.com">CARTO</a>',
+      maxZoom:18,subdomains:"abcd"
+    }).addTo(m);
+    m.setView([20.5,78.5],5);
+    leafRef.current=m;
+    return ()=>{m.remove();leafRef.current=null;};
+  },[]);
+
+  // Render map elements
+  useEffect(()=>{
+    const m=leafRef.current;
+    if(!m) return;
+    // Clear old layers
+    layersRef.current.forEach(l=>{try{m.removeLayer(l);}catch(e){}});
+    layersRef.current=[];
+
+    if(mapView==="india"){
+      // Show city markers for all visible cities
+      visibleCities.forEach(city=>{
+        const color=PHASE_COLORS[city.phase];
+        const r=city.phase===1?12:city.phase===2?10:city.phase===3?8:7;
+        const mk=L.circleMarker([city.lat,city.lng],{
+          radius:r,color:"#fff",weight:1.5,fillColor:color,fillOpacity:0.85
+        }).addTo(m);
+        mk.bindTooltip(`<b>${city.name}</b><br><span style="color:${color};font-size:10px">Phase ${city.phase} · ${city.territories.length} ${city.territories.length===1?"territory":"territories"}</span>`,{sticky:true});
+        mk.on("click",()=>{
+          setSelectedCity(city);
+          setSelectedTerritory(null);
+          if(city.phase===1){
+            setMapView("city");
+            const poly=TERRITORY_POLYGONS[city.id];
+            if(poly){
+              const allPts=Object.values(poly).flat();
+              const bounds=L.latLngBounds(allPts.map(p=>L.latLng(p[0],p[1])));
+              m.fitBounds(bounds.pad(0.1));
+            } else {
+              m.setView([city.lat,city.lng],12);
+            }
+          }
+        });
+        layersRef.current.push(mk);
+      });
+    } else if(mapView==="city" && selectedCity){
+      // Show territory polygons for selected Phase 1 city
+      const polyData=TERRITORY_POLYGONS[selectedCity.id];
+      if(polyData){
+        selectedCity.territories.forEach(terr=>{
+          const coords=polyData[terr.id];
+          if(!coords) return;
+          const color=PHASE_COLORS[selectedCity.phase];
+          const isSelected=selectedTerritory&&selectedTerritory.id===terr.id;
+          const poly=L.polygon(coords,{
+            color:color,weight:isSelected?3:1.5,
+            fillColor:color,fillOpacity:isSelected?0.45:0.2,
+            dashArray:isSelected?null:"4,4"
+          }).addTo(m);
+          const fin=calcT(selectedCity.cityTier,terr.pw,scen);
+          poly.bindTooltip(`<b>${terr.name}</b><br>
+            <span style="font-size:10px;color:#555">${terr.corridors}</span><br>
+            <b style="color:#1a1f3c">${fmt(fin.fee)} franchise fee</b>`,{sticky:true});
+          poly.on("click",()=>setSelectedTerritory({...terr,cityId:selectedCity.id}));
+          layersRef.current.push(poly);
+        });
+      }
+    }
+  },[visibleCities,mapView,selectedCity,selectedTerritory,scen]);
+
+  const fin=selectedTerritory
+    ?calcT(selectedCity.cityTier,selectedTerritory.pw,scen)
+    :null;
+
+  const finC=selectedTerritory?calcT(selectedCity.cityTier,selectedTerritory.pw,"conservative"):null;
+  const finA=selectedTerritory?calcT(selectedCity.cityTier,selectedTerritory.pw,"aggressive"):null;
+
+  return(
+    <div style={{height:"100vh",display:"flex",flexDirection:"column",background:C.bg}}>
+      {/* Header */}
+      <div style={{background:"#1a1f3c",color:"#fff",padding:"10px 16px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+        <div style={{fontWeight:800,fontSize:15,letterSpacing:"-0.3px"}}>MICROSKIN INDIA</div>
+        <div style={{height:16,width:1,background:"rgba(255,255,255,0.2)"}}/>
+        <div style={{fontSize:11,color:"rgba(255,255,255,0.65)"}}>Franchise Territory Explorer · v5 Data</div>
+        <div style={{marginLeft:"auto",display:"flex",gap:8,alignItems:"center"}}>
+          {/* Phase toggles */}
+          {[1,2,3,4].map(p=>(
+            <button key={p} onClick={()=>togglePhase(p)}
+              style={{padding:"3px 10px",borderRadius:12,border:`1.5px solid ${PHASE_COLORS[p]}`,
+                background:activePhases[p]?PHASE_COLORS[p]:"transparent",
+                color:activePhases[p]?"#fff":PHASE_COLORS[p],
+                fontSize:10,fontWeight:700,cursor:"pointer",transition:"all .2s"}}>
+              P{p}
+            </button>
+          ))}
+          {/* Scenario */}
+          <select value={scen} onChange={e=>setScen(e.target.value)}
+            style={{marginLeft:8,padding:"3px 8px",borderRadius:8,border:"1px solid rgba(255,255,255,0.3)",
+              background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:11,cursor:"pointer"}}>
+            <option value="conservative">Conservative</option>
+            <option value="base">Base Case</option>
+            <option value="aggressive">Aggressive</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{flex:1,display:"flex",overflow:"hidden"}}>
+        {/* Sidebar */}
+        <div style={{width:300,background:C.surface,borderRight:`1px solid ${C.border}`,
+          display:"flex",flexDirection:"column",overflow:"hidden",flexShrink:0}}>
+
+          {/* City/Territory nav */}
+          <div style={{padding:"10px 12px",borderBottom:`1px solid ${C.border}`,display:"flex",gap:6,alignItems:"center"}}>
+            {mapView==="city" && (
+              <button onClick={()=>{setMapView("india");setSelectedCity(null);setSelectedTerritory(null);
+                leafRef.current&&leafRef.current.setView([20.5,78.5],5);}}
+                style={{padding:"4px 10px",borderRadius:8,border:`1px solid ${C.border}`,
+                  background:C.surfaceHi,fontSize:11,cursor:"pointer",color:C.muted}}>
+                ← All India
+              </button>
+            )}
+            <div style={{fontSize:12,fontWeight:600,color:C.text}}>
+              {mapView==="india"?`${visibleCities.length} cities visible`
+                :selectedCity?selectedCity.name:""}
+            </div>
+          </div>
+
+          {/* City list / territory list */}
+          <div style={{flex:1,overflowY:"auto",padding:"6px 0"}}>
+            {mapView==="india" ? (
+              [1,2,3,4].map(phase=>{
+                const pCities=visibleCities.filter(c=>c.phase===phase);
+                if(!pCities.length) return null;
+                return(
+                  <div key={phase}>
+                    <div style={{padding:"6px 12px 3px",fontSize:10,fontWeight:700,
+                      color:PHASE_COLORS[phase],textTransform:"uppercase",letterSpacing:".5px"}}>
+                      Phase {phase}
+                    </div>
+                    {pCities.map(city=>(
+                      <div key={city.id}
+                        onClick={()=>{setSelectedCity(city);setSelectedTerritory(null);
+                          if(city.phase===1){setMapView("city");
+                            const poly=TERRITORY_POLYGONS[city.id];
+                            if(poly){
+                              const allPts=Object.values(poly).flat();
+                              const bounds=L.latLngBounds(allPts.map(p=>L.latLng(p[0],p[1])));
+                              leafRef.current&&leafRef.current.fitBounds(bounds.pad(0.1));
+                            } else leafRef.current&&leafRef.current.setView([city.lat,city.lng],12);
+                          }
+                        }}
+                        style={{padding:"7px 12px",cursor:"pointer",display:"flex",alignItems:"center",gap:8,
+                          background:selectedCity&&selectedCity.id===city.id?C.surfaceHi:"transparent",
+                          borderLeft:selectedCity&&selectedCity.id===city.id?`3px solid ${PHASE_COLORS[city.phase]}`:"3px solid transparent"}}>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:PHASE_COLORS[city.phase],flexShrink:0}}/>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:12,fontWeight:600,color:C.text}}>{city.name}</div>
+                          <div style={{fontSize:10,color:C.muted}}>{city.state} · {city.territories.length} {city.territories.length===1?"territory":"territories"}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })
+            ) : selectedCity ? (
+              <div>
+                <div style={{padding:"6px 12px 3px",fontSize:10,fontWeight:700,color:C.muted,textTransform:"uppercase"}}>
+                  Territories
+                </div>
+                {selectedCity.territories.map(t=>{
+                  const f=calcT(selectedCity.cityTier,t.pw,scen);
+                  const isSelected=selectedTerritory&&selectedTerritory.id===t.id;
+                  return(
+                    <div key={t.id}
+                      onClick={()=>setSelectedTerritory({...t,cityId:selectedCity.id})}
+                      style={{padding:"8px 12px",cursor:"pointer",
+                        background:isSelected?C.surfaceHi:"transparent",
+                        borderLeft:isSelected?`3px solid ${PHASE_COLORS[selectedCity.phase]}`:"3px solid transparent"}}>
+                      <div style={{fontSize:11,fontWeight:600,color:C.text}}>{t.name.replace(selectedCity.name+" – ","")}</div>
+                      <div style={{fontSize:10,color:C.muted,marginTop:1}}>{t.corridors.substring(0,55)}…</div>
+                      <div style={{fontSize:11,fontWeight:700,color:PHASE_COLORS[selectedCity.phase],marginTop:3}}>
+                        {fmt(f.fee)} <span style={{fontWeight:400,color:C.muted,fontSize:10}}>franchise fee</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
+
+          {/* Summary stats */}
+          <div style={{padding:"10px 12px",borderTop:`1px solid ${C.border}`,background:C.surfaceHi}}>
+            <div style={{fontSize:10,color:C.muted,marginBottom:4,fontWeight:600}}>PORTFOLIO SUMMARY</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
+              {[1,2,3,4].map(p=>{
+                const cities=CITIES.filter(c=>c.phase===p);
+                const terrs=cities.reduce((s,c)=>s+c.territories.length,0);
+                return(
+                  <div key={p} style={{fontSize:10}}>
+                    <span style={{color:PHASE_COLORS[p],fontWeight:700}}>P{p}</span>
+                    <span style={{color:C.muted}}> {cities.length}c / {terrs}t</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{fontSize:10,color:C.muted,marginTop:4}}>
+              Total: {CITIES.length} cities · {CITIES.reduce((s,c)=>s+c.territories.length,0)} territories
+            </div>
+          </div>
+        </div>
+
+        {/* Map */}
+        <div style={{flex:1,position:"relative",display:"flex",flexDirection:"column"}}>
+          <div ref={mapRef} style={{flex:1}}/>
+
+          {/* Phase legend */}
+          <div style={{position:"absolute",bottom:20,left:12,background:"rgba(255,255,255,0.96)",
+            borderRadius:10,padding:"8px 12px",boxShadow:"0 2px 12px rgba(0,0,0,0.12)",zIndex:1000}}>
+            {[1,2,3,4].map(p=>(
+              <div key={p} style={{display:"flex",alignItems:"center",gap:6,marginBottom:p<4?3:0}}>
+                <div style={{width:10,height:10,borderRadius:"50%",background:PHASE_COLORS[p]}}/>
+                <span style={{fontSize:10,color:C.muted}}>{PHASE_LABELS[p].split("—")[0].trim()}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Territory detail panel */}
+        {selectedTerritory && fin && (
+          <div style={{width:280,background:C.surface,borderLeft:`1px solid ${C.border}`,
+            overflowY:"auto",flexShrink:0}}>
+            <div style={{padding:"12px 14px",background:PHASE_COLORS[selectedCity.phase],color:"#fff"}}>
+              <div style={{fontSize:11,opacity:.8,marginBottom:2}}>{selectedCity.name}</div>
+              <div style={{fontSize:14,fontWeight:700,lineHeight:1.3}}>{selectedTerritory.name}</div>
+            </div>
+            <div style={{padding:"12px 14px"}}>
+              <Sect label="Primary Clinic Corridor" value={selectedTerritory.corridors}/>
+              <Sect label="Areas Covered" value={selectedTerritory.areas}/>
+              <div style={{height:1,background:C.border,margin:"10px 0"}}/>
+              <div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:".5px",marginBottom:8}}>
+                Financial Projections — {scen.charAt(0).toUpperCase()+scen.slice(1)}
+              </div>
+              <Row label="Active Clients (steady-state)" val={fin.clients.toLocaleString()}/>
+              <Row label="Annual Bottle Sales" val={fin.bottles.toLocaleString()}/>
+              <Row label="Annual Revenue" val={fmt(fin.revenue)} hi/>
+              <Row label="Product Gross Profit" val={fmt(fin.gp)}/>
+              <Row label="Consultation Income" val={fmt(fin.consult)}/>
+              <Row label="Total Franchisee Income" val={fmt(fin.income)} hi/>
+              <div style={{height:1,background:C.border,margin:"10px 0"}}/>
+              <div style={{background:PHASE_COLORS[selectedCity.phase]+"15",borderRadius:8,padding:"10px 12px",
+                border:`1px solid ${PHASE_COLORS[selectedCity.phase]}40`}}>
+                <div style={{fontSize:10,color:C.muted,marginBottom:4,fontWeight:600}}>RECOMMENDED FRANCHISE FEE</div>
+                <div style={{fontSize:20,fontWeight:800,color:PHASE_COLORS[selectedCity.phase]}}>{fmt(fin.fee)}</div>
+                <div style={{fontSize:12,color:C.muted,marginTop:1}}>{fmtGBP(fin.feeGBP)} · {selectedCity.cityTier===1?"1.25":selectedCity.cityTier===2?"1.22":selectedCity.cityTier===3?"1.20":"1.15"}× income multiple</div>
+              </div>
+              <div style={{height:1,background:C.border,margin:"10px 0"}}/>
+              <div style={{fontSize:10,fontWeight:700,color:C.muted,textTransform:"uppercase",marginBottom:6}}>Scenario Range</div>
+              <div style={{display:"flex",gap:6}}>
+                {["conservative","base","aggressive"].map(s=>{
+                  const f=calcT(selectedCity.cityTier,selectedTerritory.pw,s);
+                  return(
+                    <div key={s} style={{flex:1,background:s===scen?PHASE_COLORS[selectedCity.phase]+"15":C.surfaceHi,
+                      borderRadius:6,padding:"6px 8px",border:s===scen?`1px solid ${PHASE_COLORS[selectedCity.phase]}50`:`1px solid ${C.border}`}}>
+                      <div style={{fontSize:9,color:C.muted,textTransform:"uppercase"}}>{s.slice(0,4)}</div>
+                      <div style={{fontSize:11,fontWeight:700,color:C.text,marginTop:2}}>{fmt(f.fee)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{marginTop:12,padding:"8px",background:C.surfaceHi,borderRadius:6,fontSize:10,color:C.muted}}>
+                <b>Partner Weight:</b> {selectedTerritory.pw}× city baseline<br/>
+                <b>City Accessible Partners:</b> {selectedCity.accessible.toLocaleString()}<br/>
+                <b>Model:</b> v5 · ₹{M.retail.toLocaleString()} retail · {M.clinicDays} clinic days/mo
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Sect({label,value}){
+  return(
+    <div style={{marginBottom:8}}>
+      <div style={{fontSize:9,fontWeight:700,color:"#8c95a8",textTransform:"uppercase",letterSpacing:".4px"}}>{label}</div>
+      <div style={{fontSize:11,color:"#1a1f3c",marginTop:2,lineHeight:1.4}}>{value}</div>
+    </div>
+  );
+}
+function Row({label,val,hi}){
+  return(
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",
+      padding:"4px 0",borderBottom:"1px solid #f0f4f8"}}>
+      <span style={{fontSize:10,color:"#5c6478"}}>{label}</span>
+      <span style={{fontSize:hi?12:11,fontWeight:hi?700:500,color:hi?"#1a1f3c":"#5c6478"}}>{val}</span>
+    </div>
+  );
+}
+
+const root=ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script></body></html>

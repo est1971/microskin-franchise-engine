@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <p class="eyebrow">Global Franchise Intelligence</p>
+        <h1>Microskin Territory Intelligence Engine<span>™</span></h1>
+        <p class="lede">Opportunity-driven territory design, multi-core metro analysis, and contract-ready exports in one platform.</p>
+      </div>
+      <div id="summary-cards" class="summary-grid"></div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Markets</h2>
+          <span class="chip">Sandbox build</span>
+        </div>
+        <div id="country-list" class="list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Admin</h2>
+        </div>
+        <button id="rerun-market" class="primary">Rerun Current Market</button>
+        <div id="job-status" class="status"></div>
+      </div>
+    </aside>
+    <main class="content">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Contract-ready Territory Platform</p>
+          <h2 id="view-title">Global market view</h2>
+          <p id="view-subtitle">Country intelligence, city discovery, cluster detection, territory viability, and commercial projections connected end to end.</p>
+        </div>
+        <div class="hero-note">
+          <p>Generated</p>
+          <strong>{{ generated }}</strong>
+        </div>
+      </section>
+      <section class="grid">
+        <div class="panel map-panel">
+          <div class="panel-head">
+            <h2>Territory map</h2>
+            <div class="legend">
+              <span class="legend-dot available"></span>Available
+              <span class="legend-dot reserved"></span>Reserved
+              <span class="legend-dot sold"></span>Sold
+              <span class="legend-dot under_review"></span>Under review
+            </div>
+          </div>
+          <div id="map"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Country analysis</h2>
+          </div>
+          <div id="analysis-panel" class="stack"></div>
+        </div>
+      </section>
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>City intelligence</h2>
+          </div>
+          <div id="city-panel" class="stack"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Territory detail & calculator</h2>
+          </div>
+          <div id="territory-panel" class="stack"></div>
+        </div>
+      </section>
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Admin review</h2>
+          </div>
+          <div id="admin-panel" class="stack"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Export center</h2>
+          </div>
+          <div id="export-panel" class="stack"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
+

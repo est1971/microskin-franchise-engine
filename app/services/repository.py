@@ -1,0 +1,76 @@
+from __future__ import annotations
+
+from functools import lru_cache
+
+from app.data.fixtures.demo_data import CITY_FIXTURES, COUNTRY_FIXTURES
+from app.services.pipeline import global_summary, run_all_pipelines, run_city_pipeline
+
+
+@lru_cache(maxsize=1)
+def cached_results() -> dict:
+    return run_all_pipelines()
+
+
+def refresh_results() -> dict:
+    cached_results.cache_clear()
+    return cached_results()
+
+
+def get_summary() -> dict:
+    return global_summary()
+
+
+def list_countries() -> list[dict]:
+    results = cached_results()
+    output = []
+    for country in COUNTRY_FIXTURES:
+        cities = [city for city in CITY_FIXTURES if city["country_code"] == country["code"]]
+        country_territories = [territory for result in results.values() for territory in result.territories if territory.country_code == country["code"]]
+        output.append(
+            {
+                "code": country["code"],
+                "name": country["name"],
+                "region": country["region"],
+                "supported": True,
+                "cities": len(cities),
+                "territories": len(country_territories),
+                "contract_ready": len([territory for territory in country_territories if territory.validation_status.startswith("valid")]),
+            }
+        )
+    return output
+
+
+def country_detail(country_code: str) -> dict:
+    country = next(item for item in COUNTRY_FIXTURES if item["code"] == country_code)
+    city_details = []
+    for city in [item for item in CITY_FIXTURES if item["country_code"] == country_code]:
+        result = cached_results()[city["id"]]
+        city_details.append(
+            {
+                "city": city,
+                "analysis": result.city_analysis,
+                "territories": [territory.model_dump(mode="json") for territory in result.territories],
+                "clusters": [cluster.model_dump(mode="json") for cluster in result.clusters],
+            }
+        )
+    return {"country": country, "cities": city_details}
+
+
+def city_detail(city_id: str) -> dict:
+    result = cached_results().get(city_id) or run_city_pipeline(city_id)
+    return {
+        "city": result.city,
+        "analysis": result.city_analysis,
+        "businesses": [business.model_dump(mode="json") for business in result.businesses],
+        "clusters": [cluster.model_dump(mode="json") for cluster in result.clusters],
+        "territories": [territory.model_dump(mode="json") for territory in result.territories],
+    }
+
+
+def territory_detail(territory_id: str):
+    for result in cached_results().values():
+        for territory in result.territories:
+            if territory.territory_id == territory_id:
+                return territory
+    raise KeyError(territory_id)
+

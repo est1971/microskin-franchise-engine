@@ -22,7 +22,7 @@ FIELD_MASK = (
 # Maps our internal category → Google Places included types
 CATEGORY_TYPE_MAP: list[tuple[str, list[str]]] = [
     ("dermatologist",                    ["doctor"]),
-    ("aesthetic_clinic",                 ["beauty_salon", "skin_care"]),
+    ("aesthetic_clinic",                 ["beauty_salon"]),
     ("med_spa",                          ["spa"]),
     ("hospital_dermatology_department",  ["hospital"]),
     ("pmu_artist",                       ["beauty_salon"]),

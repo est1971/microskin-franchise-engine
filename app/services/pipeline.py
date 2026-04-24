@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from app.core.contracts import BusinessRecord, CanonicalBusiness
 from app.core.utils import haversine_km
 from app.data.fixtures.demo_data import CITY_FIXTURES
+from app.data.business_store import has_city_data, load_city_businesses, save_city_businesses
 from app.engine.adapters import adapter_stack
 from app.engine.city_discovery import analyze_city_market, all_city_analyses
 from app.engine.country_profiles import load_country_profiles
@@ -39,9 +40,16 @@ def run_city_pipeline(city_id: str) -> CityPipelineResult:
     city = next(city for city in CITY_FIXTURES if city["id"] == city_id)
     profiles = load_country_profiles()
     profile = profiles[city["country_code"]]
+    # ── Business discovery with DB cache ──────────────────────────────────────
+    # Google Places is called exactly once per city.  On every subsequent run
+    # (including server restarts) the records are loaded from SQLite instead.
     raw_records: list[BusinessRecord] = []
-    for adapter in adapter_stack():
-        raw_records.extend(adapter.discover(city_id))
+    if has_city_data(city_id):
+        raw_records = load_city_businesses(city_id)
+    else:
+        for adapter in adapter_stack():
+            raw_records.extend(adapter.discover(city_id))
+        save_city_businesses(city_id, raw_records)
     canonical_businesses = score_businesses(reconcile_businesses(raw_records))
     businesses_by_id = {business.canonical_id: business for business in canonical_businesses}
 

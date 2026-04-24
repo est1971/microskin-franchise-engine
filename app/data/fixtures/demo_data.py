@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from app.data.fixtures.countries_international import INTERNATIONAL_COUNTRY_FIXTURES
+from app.data.fixtures.cities_usa import USA_CITY_FIXTURES
+from app.data.fixtures.cities_international import INTERNATIONAL_CITY_FIXTURES
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Country Fixtures
+# India / US / SG are defined inline; all other countries are imported above.
 # ─────────────────────────────────────────────────────────────────────────────
 
-COUNTRY_FIXTURES = [
+_BASE_COUNTRY_FIXTURES = [
     {
         "code": "IN",
         "iso3": "IND",
@@ -15,7 +20,19 @@ COUNTRY_FIXTURES = [
             "admin_hierarchy": ["country", "state", "district", "city", "ward"],
             "preferred_geometry_snap_hierarchy": ["major_roads", "water", "pin_code", "ward", "district"],
             "normalization": {"language": ["en", "hi"], "transliteration": True},
-            "market_defaults": {"maturity": "scaling", "cluster_radius_km": 4.0, "min_cluster_weight": 5.2},
+            "market_defaults": {
+                "maturity": "scaling",
+                "cluster_radius_km": 4.0,
+                "min_cluster_weight": 5.2,
+                "currency_code": "INR",
+                "currency_symbol": "₹",
+                "gbp_rate": 107.0,
+                "product_price_local": 9500.0,
+                "consultation_fee_default": 2500.0,
+                "royalty_rate": 0.06,
+                "marketing_contribution_rate": 0.01,
+                "connect_fee_monthly_local": 12840.0,
+            },
             "category_mapping_adjustments": {"premium_salon": 0.9},
             "naming_convention": "{city} - {core} Territory {index}",
             "export_convention": {"boundary_units": "PIN and commercial corridors", "language": "en-IN"},
@@ -31,7 +48,19 @@ COUNTRY_FIXTURES = [
             "admin_hierarchy": ["country", "state", "county", "city", "neighborhood"],
             "preferred_geometry_snap_hierarchy": ["major_roads", "water", "zip_code", "county", "neighborhood"],
             "normalization": {"language": ["en"], "transliteration": False},
-            "market_defaults": {"maturity": "developed", "cluster_radius_km": 3.6, "min_cluster_weight": 4.8},
+            "market_defaults": {
+                "maturity": "developed",
+                "cluster_radius_km": 3.6,
+                "min_cluster_weight": 4.8,
+                "currency_code": "USD",
+                "currency_symbol": "$",
+                "gbp_rate": 1.27,
+                "product_price_local": 115.0,
+                "consultation_fee_default": 150.0,
+                "royalty_rate": 0.06,
+                "marketing_contribution_rate": 0.01,
+                "connect_fee_monthly_local": 120.0,
+            },
             "category_mapping_adjustments": {"med_spa": 1.05},
             "naming_convention": "{metro} - {core} Territory {index}",
             "export_convention": {"boundary_units": "ZIP and corridor anchors", "language": "en-US"},
@@ -47,13 +76,28 @@ COUNTRY_FIXTURES = [
             "admin_hierarchy": ["country", "planning_area", "subzone"],
             "preferred_geometry_snap_hierarchy": ["major_roads", "planning_area", "subzone"],
             "normalization": {"language": ["en"], "transliteration": False},
-            "market_defaults": {"maturity": "pilot", "cluster_radius_km": 2.0, "min_cluster_weight": 4.0},
+            "market_defaults": {
+                "maturity": "pilot",
+                "cluster_radius_km": 2.0,
+                "min_cluster_weight": 4.0,
+                "currency_code": "SGD",
+                "currency_symbol": "S$",
+                "gbp_rate": 1.69,
+                "product_price_local": 150.0,
+                "consultation_fee_default": 200.0,
+                "royalty_rate": 0.06,
+                "marketing_contribution_rate": 0.01,
+                "connect_fee_monthly_local": 203.0,
+            },
             "category_mapping_adjustments": {},
             "naming_convention": "{city} - {core} Territory {index}",
             "export_convention": {"boundary_units": "postcode and corridor anchors", "language": "en-SG"},
         },
     },
 ]
+
+# Merge base (IN / US / SG) + all international country profiles
+COUNTRY_FIXTURES = _BASE_COUNTRY_FIXTURES + INTERNATIONAL_COUNTRY_FIXTURES
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -62,11 +106,11 @@ COUNTRY_FIXTURES = [
 # run_on_startup = True  → included in the cold-start pipeline run
 # run_on_startup = False → lazy-loaded on first individual city API request
 #
-# Phase 1 (Mega Metros) and the two existing US/SG cities run on startup.
-# All other cities load lazily to keep cold-start time manageable.
+# India Phase 1 mega metros + NY, LA, London, Sydney, Paris, Toronto, Bangkok,
+# KL run on startup.  All other cities lazy-load on first request.
 # ─────────────────────────────────────────────────────────────────────────────
 
-CITY_FIXTURES = [
+_BASE_CITY_FIXTURES = [
 
     # ── INDIA  ──────────────────────────────────────────────────────────────
     # ── Phase 1 – Foundation / Mega Metros ──────────────────────────────────
@@ -1185,6 +1229,8 @@ CITY_FIXTURES = [
     },
 ]
 
+# Final merged fixture: base (IN + 2 US + SG) + remaining 51 US metros + all international cities
+CITY_FIXTURES = _BASE_CITY_FIXTURES + USA_CITY_FIXTURES + INTERNATIONAL_CITY_FIXTURES
 
 
 def _business(record_id, city_id, country_code, source, name, address, region,

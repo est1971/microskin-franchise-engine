@@ -6,6 +6,54 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.database import Base
 
 
+# ── Business persistence cache ─────────────────────────────────────────────────
+
+class BusinessCacheModel(Base):
+    """Stores every BusinessRecord discovered for a city (raw adapter output).
+
+    Once a city has been discovered, the pipeline loads from here rather than
+    calling Google Places again — so the API is called exactly once per city,
+    ever.
+    """
+    __tablename__ = "business_cache"
+
+    record_id: Mapped[str] = mapped_column(String, primary_key=True)
+    source: Mapped[str] = mapped_column(String, nullable=False)
+    source_confidence: Mapped[float] = mapped_column(Float, default=0.0)
+    city_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    country_code: Mapped[str] = mapped_column(String, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    address: Mapped[str] = mapped_column(String, default="")
+    region: Mapped[str] = mapped_column(String, default="")
+    city: Mapped[str] = mapped_column(String, default="")
+    latitude: Mapped[float] = mapped_column(Float, default=0.0)
+    longitude: Mapped[float] = mapped_column(Float, default=0.0)
+    category_hint: Mapped[str] = mapped_column(String, default="")
+    rating: Mapped[float] = mapped_column(Float, default=0.0)
+    review_count: Mapped[int] = mapped_column(Integer, default=0)
+    website_present: Mapped[bool] = mapped_column(Boolean, default=False)
+    premium_corridor: Mapped[bool] = mapped_column(Boolean, default=False)
+    completeness: Mapped[float] = mapped_column(Float, default=0.5)
+    stale: Mapped[bool] = mapped_column(Boolean, default=False)
+    metadata_json: Mapped[str] = mapped_column(Text, default="{}")
+    discovered_at: Mapped[str] = mapped_column(String, nullable=False)
+
+
+class CityDiscoveryStatusModel(Base):
+    """Tracks whether a city has been fully discovered via the adapter stack.
+
+    A city is marked ``discovered`` once all adapters have run successfully and
+    the resulting records have been persisted to ``business_cache``.  Subsequent
+    pipeline runs skip the API entirely.
+    """
+    __tablename__ = "city_discovery_status"
+
+    city_id: Mapped[str] = mapped_column(String, primary_key=True)
+    discovered_at: Mapped[str] = mapped_column(String, nullable=False)
+    business_count: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String, default="discovered")   # discovered | stale
+
+
 class Country(Base):
     __tablename__ = "countries"
     id: Mapped[str] = mapped_column(String, primary_key=True)

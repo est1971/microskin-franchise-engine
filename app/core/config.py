@@ -13,7 +13,13 @@ EXPORT_DIR = BASE_DIR / "exports"
 @dataclass(slots=True)
 class AppConfig:
     app_name: str = os.getenv("MICROSKIN_APP_NAME", "Microskin Territory Intelligence Engine™")
-    database_url: str = os.getenv("MICROSKIN_DATABASE_URL", f"sqlite:///{(INSTANCE_DIR / 'microskin.db').as_posix()}")
+    # On Railway, mount a persistent volume at /data and set DATABASE_URL to
+    # sqlite:////data/microskin.db so the DB survives redeployments.
+    # Locally the default sqlite in instance/ is used.
+    database_url: str = os.getenv(
+        "MICROSKIN_DATABASE_URL",
+        os.getenv("DATABASE_URL", f"sqlite:///{(INSTANCE_DIR / 'microskin.db').as_posix()}")
+    )
     data_confidence_threshold: float = float(os.getenv("MICROSKIN_DATA_CONFIDENCE_THRESHOLD", "0.62"))
     contractability_threshold: float = float(os.getenv("MICROSKIN_CONTRACTABILITY_THRESHOLD", "0.70"))
     refresh_days_soft_limit: int = 90

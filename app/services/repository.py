@@ -18,13 +18,19 @@ def refresh_results() -> dict:
 
 
 def get_summary() -> dict:
-    """Use cached pipeline results — avoids re-running all Google Places calls."""
+    """Return a summary that reflects all fixture cities, not just startup-loaded ones.
+
+    Territory/contract counts come from cached (startup-loaded) cities.
+    Total city count comes from CITY_FIXTURES so the summary shows the full
+    scope of the network even before lazy cities have been loaded.
+    """
     results = cached_results()
     city_analyses = all_city_analyses()
     territories = [t for r in results.values() for t in r.territories]
     return {
-        "countries": sorted({r.city["country_code"] for r in results.values()}),
-        "cities": len(results),
+        "countries": sorted({city["country_code"] for city in CITY_FIXTURES}),
+        "cities_total": len(CITY_FIXTURES),
+        "cities_loaded": len(results),
         "territories": len(territories),
         "contract_ready": len([t for t in territories if t.validation_status.startswith("valid")]),
         "population_logic_warning_count": len([a for a in city_analyses if a["population_only_is_flawed"]]),
@@ -53,17 +59,31 @@ def list_countries() -> list[dict]:
 
 def country_detail(country_code: str) -> dict:
     country = next(item for item in COUNTRY_FIXTURES if item["code"] == country_code)
+    results = cached_results()
     city_details = []
     for city in [item for item in CITY_FIXTURES if item["country_code"] == country_code]:
-        result = cached_results()[city["id"]]
-        city_details.append(
-            {
-                "city": city,
-                "analysis": result.city_analysis,
-                "territories": [territory.model_dump(mode="json") for territory in result.territories],
-                "clusters": [cluster.model_dump(mode="json") for cluster in result.clusters],
-            }
-        )
+        # Use cached result if available; otherwise return fixture metadata only
+        result = results.get(city["id"])
+        if result:
+            city_details.append(
+                {
+                    "city": city,
+                    "loaded": True,
+                    "analysis": result.city_analysis,
+                    "territories": [territory.model_dump(mode="json") for territory in result.territories],
+                    "clusters": [cluster.model_dump(mode="json") for cluster in result.clusters],
+                }
+            )
+        else:
+            city_details.append(
+                {
+                    "city": city,
+                    "loaded": False,
+                    "analysis": None,
+                    "territories": [],
+                    "clusters": [],
+                }
+            )
     return {"country": country, "cities": city_details}
 
 

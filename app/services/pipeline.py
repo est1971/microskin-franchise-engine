@@ -77,7 +77,14 @@ def run_city_pipeline(city_id: str) -> CityPipelineResult:
 
 
 def run_all_pipelines() -> dict[str, CityPipelineResult]:
-    return {city["id"]: run_city_pipeline(city["id"]) for city in CITY_FIXTURES}
+    """Run pipelines for cities flagged run_on_startup=True.
+
+    Cities with run_on_startup=False load lazily via city_detail() on first
+    request.  This keeps cold-start time predictable regardless of how many
+    cities are in the fixture list.
+    """
+    active = [city for city in CITY_FIXTURES if city.get("run_on_startup", True)]
+    return {city["id"]: run_city_pipeline(city["id"]) for city in active}
 
 
 def global_summary() -> dict:

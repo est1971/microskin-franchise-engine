@@ -5,7 +5,7 @@ description = "Microskin Territory Intelligence Engine"
 authors = ["David Robinson <dr@d2cp.ltd>"]
 
 [tool.poetry.dependencies]
-python = ">=3.14,<4"
+python = ">=3.10,<4"
 fastapi = {extras = ["standard"], version = ">=0.100.0"}
 uvicorn = {extras = ["standard"], version = ">=0.20.0"}
 sqlalchemy = ">=2.0"

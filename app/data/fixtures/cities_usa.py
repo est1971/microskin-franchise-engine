@@ -24,7 +24,7 @@ USA_CITY_FIXTURES = [
         "center": [41.8781, -87.6298],
         "launch_phase": "Major Cities",
         "population_rank": 3,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "us-chi-gold-coast",   "name": "Gold Coast / Lincoln Park", "center": [41.9120, -87.6366], "corridors": ["Rush Street", "Oak Street", "Lincoln Park Medical Mile"]},
             {"id": "us-chi-river-north",  "name": "River North / Streeterville", "center": [41.8934, -87.6285], "corridors": ["Michigan Avenue", "Magnificent Mile", "Wacker Drive"]},
@@ -46,7 +46,7 @@ USA_CITY_FIXTURES = [
         "center": [32.7767, -96.7970],
         "launch_phase": "Major Cities",
         "population_rank": 4,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "us-dfw-uptown",    "name": "Uptown Dallas",          "center": [32.7980, -96.8097], "corridors": ["Oak Lawn Avenue", "Cedar Springs", "McKinney Avenue"]},
             {"id": "us-dfw-north",     "name": "North Dallas / Plano",   "center": [33.0198, -96.6989], "corridors": ["Preston Road Medical Corridor", "Legacy West", "Frisco Main"]},
@@ -67,7 +67,7 @@ USA_CITY_FIXTURES = [
         "center": [29.7604, -95.3698],
         "launch_phase": "Major Cities",
         "population_rank": 5,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "us-hou-galleria",    "name": "Galleria / Uptown",     "center": [29.7368, -95.4613], "corridors": ["Post Oak Boulevard", "Westheimer", "River Oaks Blvd"]},
             {"id": "us-hou-medical",     "name": "Medical Center / Midtown","center": [29.7069, -95.3962], "corridors": ["Main Street Medical", "Greenbriar Drive"]},
@@ -88,7 +88,7 @@ USA_CITY_FIXTURES = [
         "center": [38.9072, -77.0369],
         "launch_phase": "Major Cities",
         "population_rank": 6,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "us-dc-dupont",       "name": "Dupont Circle / Georgetown", "center": [38.9097, -77.0432], "corridors": ["Connecticut Avenue NW", "M Street NW Georgetown"]},
             {"id": "us-dc-bethesda",     "name": "Bethesda / Chevy Chase",     "center": [38.9847, -77.0947], "corridors": ["Wisconsin Avenue Bethesda", "Old Georgetown Road"]},
@@ -109,7 +109,7 @@ USA_CITY_FIXTURES = [
         "center": [25.7617, -80.1918],
         "launch_phase": "Major Cities",
         "population_rank": 7,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "us-mia-brickell",    "name": "Brickell / Downtown",   "center": [25.7617, -80.1918], "corridors": ["Brickell Avenue", "Mary Brickell Village"]},
             {"id": "us-mia-south-beach", "name": "South Beach / Mid Beach","center": [25.7900, -80.1300], "corridors": ["Collins Avenue", "Lincoln Road", "Alton Road"]},

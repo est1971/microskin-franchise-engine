@@ -23,7 +23,7 @@ INTERNATIONAL_CITY_FIXTURES = [
         "center": [51.5074, -0.1278],
         "launch_phase": "Foundation",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "gb-lon-mayfair",      "name": "Mayfair / Marylebone",    "center": [51.5142, -0.1494], "corridors": ["Harley Street", "Wimpole Street", "New Cavendish Street"]},
             {"id": "gb-lon-chelsea",      "name": "Chelsea / Kensington",    "center": [51.4875, -0.1739], "corridors": ["Kings Road Chelsea", "Fulham Road Clinic Strip", "Brompton Road"]},
@@ -347,7 +347,7 @@ INTERNATIONAL_CITY_FIXTURES = [
         "center": [-33.8688, 151.2093],
         "launch_phase": "Foundation",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "au-syd-cbd",          "name": "CBD / Surry Hills",        "center": [-33.8810, 151.2097], "corridors": ["Pitt Street", "Crown Street Surry Hills", "Oxford Street"]},
             {"id": "au-syd-eastern",      "name": "Eastern Suburbs",          "center": [-33.8889, 151.2702], "corridors": ["New South Head Road", "Double Bay Knox Street", "Bondi Junction"]},
@@ -646,7 +646,7 @@ INTERNATIONAL_CITY_FIXTURES = [
         "center": [48.8566, 2.3522],
         "launch_phase": "Foundation",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "fr-par-8e",           "name": "8e / 16e Arrondissement", "center": [48.8749, 2.3030], "corridors": ["Avenue Montaigne", "Rue du Faubourg Saint-Honoré", "Avenue Victor Hugo"]},
             {"id": "fr-par-saint-germain","name": "Saint-Germain-des-Prés",  "center": [48.8528, 2.3326], "corridors": ["Boulevard Saint-Germain", "Rue de Rennes Clinic Strip"]},
@@ -1371,7 +1371,7 @@ INTERNATIONAL_CITY_FIXTURES = [
         "center": [13.7563, 100.5018],
         "launch_phase": "Foundation",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "th-bkk-sukhumvit",    "name": "Sukhumvit",               "center": [13.7308, 100.5624], "corridors": ["Sukhumvit Road Clinic Mile", "Soi Tonglor", "Soi Ekkamai"]},
             {"id": "th-bkk-silom",        "name": "Silom / Sathorn",         "center": [13.7245, 100.5228], "corridors": ["Silom Road Medical Corridor", "Narathiwas Road", "Sathorn Clinic Strip"]},
@@ -1447,7 +1447,7 @@ INTERNATIONAL_CITY_FIXTURES = [
         "center": [3.1390, 101.6869],
         "launch_phase": "Foundation",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "my-kl-klcc",          "name": "KLCC / Bukit Bintang",    "center": [3.1469, 101.6962], "corridors": ["Jalan Ampang KLCC", "Bukit Bintang Clinic Corridor", "Jalan Conlay"]},
             {"id": "my-kl-bangsar",       "name": "Bangsar / Mont Kiara",    "center": [3.1191, 101.6717], "corridors": ["Jalan Bangsar Clinic Strip", "Solaris Mont Kiara", "Dutamas Jalan Kiara"]},
@@ -1544,7 +1544,7 @@ INTERNATIONAL_CITY_FIXTURES = [
         "center": [43.6532, -79.3832],
         "launch_phase": "Foundation",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "ca-tor-rosedale",     "name": "Rosedale / Yorkville",    "center": [43.6757, -79.3881], "corridors": ["Bloor Street West Yorkville", "Avenue Road Clinic Strip", "Hazelton Avenue"]},
             {"id": "ca-tor-forest-hill",  "name": "Forest Hill / Lytton Park","center": [43.6936, -79.4100], "corridors": ["Spadina Road Forest Hill", "Lytton Blvd Clinic Corridor"]},

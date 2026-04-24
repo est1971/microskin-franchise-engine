@@ -126,7 +126,7 @@ _BASE_CITY_FIXTURES = [
         "center": [28.6139, 77.2090],
         "launch_phase": "Foundation",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "in-delhi-central",    "name": "Central Delhi",        "center": [28.6328, 77.2197], "corridors": ["Connaught Place", "Rajendra Place", "Patel Nagar"]},
             {"id": "in-delhi-south1",     "name": "South Delhi 1",        "center": [28.5308, 77.2439], "corridors": ["Greater Kailash", "Malviya Nagar", "Saket"]},
@@ -153,7 +153,7 @@ _BASE_CITY_FIXTURES = [
         "center": [19.0760, 72.8777],
         "launch_phase": "Foundation",
         "population_rank": 2,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "in-mumbai-south",       "name": "South Mumbai",           "center": [18.9220, 72.8347], "corridors": ["Pedder Road", "Breach Candy", "Worli"]},
             {"id": "in-mumbai-central",     "name": "Central Mumbai",         "center": [19.0161, 72.8434], "corridors": ["Lower Parel", "Dadar", "Prabhadevi"]},
@@ -178,7 +178,7 @@ _BASE_CITY_FIXTURES = [
         "center": [22.5726, 88.3639],
         "launch_phase": "Foundation",
         "population_rank": 3,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "in-kolkata-central",  "name": "Central / Park Street",    "center": [22.5518, 88.3676], "corridors": ["Park Street", "Camac Street", "Ballygunge Place"]},
             {"id": "in-kolkata-north",    "name": "North Kolkata",             "center": [22.6050, 88.3668], "corridors": ["Shyambazar", "Dum Dum Road", "Ultadanga"]},
@@ -199,7 +199,7 @@ _BASE_CITY_FIXTURES = [
         "center": [12.9716, 77.5946],
         "launch_phase": "Foundation",
         "population_rank": 4,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "in-blr-central",       "name": "Central / MG Road",      "center": [12.9766, 77.6009], "corridors": ["MG Road", "UB City", "Cunningham Road"]},
             {"id": "in-blr-koramangala",   "name": "SE / Koramangala–HSR",   "center": [12.9352, 77.6245], "corridors": ["Koramangala 5th Block", "80 Feet Road", "HSR Layout"]},
@@ -222,7 +222,7 @@ _BASE_CITY_FIXTURES = [
         "center": [13.0827, 80.2707],
         "launch_phase": "Foundation",
         "population_rank": 5,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "in-chennai-central",  "name": "Central / Egmore",      "center": [13.0827, 80.2707], "corridors": ["Egmore Nelson Manickam Road", "Kilpauk Medical Hub", "Nungambakkam High Road"]},
             {"id": "in-chennai-mylapore", "name": "South 1 / Mylapore",    "center": [13.0368, 80.2676], "corridors": ["Alwarpet", "Mylapore", "Royapettah"]},
@@ -244,7 +244,7 @@ _BASE_CITY_FIXTURES = [
         "center": [17.3850, 78.4867],
         "launch_phase": "Foundation",
         "population_rank": 6,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "in-hyd-banjara",      "name": "Banjara Hills / Jubilee Hills", "center": [17.4156, 78.4347], "corridors": ["Banjara Hills Road No 1", "Jubilee Hills"]},
             {"id": "in-hyd-hitec",        "name": "HiTec City / Gachibowli",      "center": [17.4400, 78.3489], "corridors": ["HiTec City", "Kondapur", "Gachibowli DLF"]},
@@ -1181,7 +1181,7 @@ _BASE_CITY_FIXTURES = [
         "center": [40.7128, -74.0060],
         "launch_phase": "Foundation",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "us-ny-manhattan",    "name": "Manhattan",             "center": [40.7580, -73.9855], "corridors": ["Upper East Side", "Midtown", "Flatiron"]},
             {"id": "us-ny-brooklyn-queens","name": "Brooklyn / Queens",   "center": [40.6782, -73.9442], "corridors": ["Williamsburg", "Long Island City"]},
@@ -1201,7 +1201,7 @@ _BASE_CITY_FIXTURES = [
         "center": [34.0522, -118.2437],
         "launch_phase": "Major Cities",
         "population_rank": 2,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "us-la-westside",      "name": "Westside",              "center": [34.0635, -118.4455], "corridors": ["Beverly Hills", "Santa Monica", "West Hollywood"]},
             {"id": "us-la-san-fernando",  "name": "San Fernando Valley",   "center": [34.1683, -118.6059], "corridors": ["Studio City", "Calabasas"]},
@@ -1222,7 +1222,7 @@ _BASE_CITY_FIXTURES = [
         "center": [1.3521, 103.8198],
         "launch_phase": "Developing Market",
         "population_rank": 1,
-        "run_on_startup": True,
+        "run_on_startup": False,
         "cores": [
             {"id": "sg-orchard", "name": "Orchard / River Valley", "center": [1.3048, 103.8318], "corridors": ["Orchard Road", "River Valley"]},
         ],

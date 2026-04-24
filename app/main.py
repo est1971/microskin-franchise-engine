@@ -48,13 +48,19 @@ async def countries() -> list[dict]:
 
 
 @app.get("/api/countries/{country_code}")
-async def country(country_code: str) -> dict:
+def country(country_code: str) -> dict:
     return country_detail(country_code)
 
 
 @app.get("/api/cities/{city_id}")
-async def city(city_id: str) -> dict:
-    return city_detail(city_id)
+def city(city_id: str) -> dict:
+    # Synchronous endpoint — FastAPI runs this in a threadpool so the long-running
+    # Google Places grid search does not block the async event loop.
+    # Other endpoints (summary, countries) remain responsive during discovery.
+    try:
+        return city_detail(city_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"City pipeline error: {exc}") from exc
 
 
 @app.get("/api/territories/{territory_id}")

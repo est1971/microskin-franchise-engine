@@ -312,24 +312,37 @@ async function selectTerritory(territoryId, fetchFresh = true) {
 
 async function loadCity(cityId) {
   state.selectedCity = cityId;
-  state.currentCityDetail = await fetchJSON(`/api/cities/${cityId}`);
-  document.getElementById('view-title').textContent = state.currentCityDetail.city.name;
-  document.getElementById('view-subtitle').textContent = `${state.currentCityDetail.analysis.classification} market · ${state.currentCityDetail.analysis.suggested_economic_cores} cores · territory generation driven by validated opportunity clusters.`;
-  renderCity(state.currentCityDetail);
+
+  // Show loading state immediately so the user knows something is happening
+  document.getElementById('view-title').textContent = 'Loading…';
+  document.getElementById('view-subtitle').textContent = 'Running territory discovery — first load may take 30–60 seconds while Google Places is queried across the full metro. Subsequent loads are instant.';
+  document.getElementById('city-panel').innerHTML = '<p class="muted" style="padding:16px">Discovering businesses across the metro grid…</p>';
+  document.getElementById('territory-panel').innerHTML = '<p class="muted" style="padding:16px">Territories will appear once discovery is complete.</p>';
+
+  try {
+    state.currentCityDetail = await fetchJSON(`/api/cities/${cityId}`);
+    document.getElementById('view-title').textContent = state.currentCityDetail.city.name;
+    document.getElementById('view-subtitle').textContent = `${state.currentCityDetail.analysis.classification} market · ${state.currentCityDetail.analysis.suggested_economic_cores} estimated cores · territory generation driven by validated opportunity clusters.`;
+    renderCity(state.currentCityDetail);
+  } catch (err) {
+    document.getElementById('view-title').textContent = 'Discovery error';
+    document.getElementById('view-subtitle').textContent = `Failed to load ${cityId}: ${err.message}`;
+    document.getElementById('city-panel').innerHTML = `<p class="muted" style="padding:16px;color:var(--danger)">Error: ${err.message}</p>`;
+  }
 }
 
 async function loadCountry(countryCode) {
   state.selectedCountry = countryCode;
   state.calculatorAdjust = 1.0;
-  // Store financial profile for this country so money() works correctly
   const countryRecord = state.countries.find((c) => c.code === countryCode);
   if (countryRecord) {
     state.currentCountryFinancial = countryRecord;
   }
   renderCountries();
+  document.getElementById('analysis-panel').innerHTML = '<p class="muted" style="padding:16px">Loading cities…</p>';
   const countryDetail = await fetchJSON(`/api/countries/${countryCode}`);
   renderAnalysis(countryDetail);
-  // Auto-load first city that has been fully discovered (loaded=true), or just first
+  // Auto-load first already-discovered city; otherwise load first city in list
   const firstLoaded = countryDetail.cities.find((c) => c.loaded);
   const firstAny = countryDetail.cities[0];
   const target = firstLoaded || firstAny;

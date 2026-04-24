@@ -69,6 +69,7 @@ class ClusterResult(BaseModel):
     business_ids: list[str]
     raw_business_count: int
     weighted_business_count: float
+    viable_business_count: int = 0   # businesses with weighted_opportunity_score >= 4.0
     category_mix: dict[str, int]
     density_score: float
     radius_km: float

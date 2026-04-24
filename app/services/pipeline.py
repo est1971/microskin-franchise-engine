@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 
-from app.core.contracts import BusinessRecord
+from app.core.contracts import BusinessRecord, CanonicalBusiness
+from app.core.utils import haversine_km
 from app.data.fixtures.demo_data import CITY_FIXTURES
 from app.engine.adapters import adapter_stack
 from app.engine.city_discovery import analyze_city_market, all_city_analyses
@@ -22,6 +24,17 @@ class CityPipelineResult:
     territories: list
 
 
+def _nearest_core_id(business: CanonicalBusiness, cores: list[dict]) -> str:
+    """Return the id of whichever core centre is geographically closest."""
+    return min(
+        cores,
+        key=lambda c: haversine_km(
+            business.latitude, business.longitude,
+            c["center"][0], c["center"][1],
+        ),
+    )["id"]
+
+
 def run_city_pipeline(city_id: str) -> CityPipelineResult:
     city = next(city for city in CITY_FIXTURES if city["id"] == city_id)
     profiles = load_country_profiles()
@@ -31,9 +44,23 @@ def run_city_pipeline(city_id: str) -> CityPipelineResult:
         raw_records.extend(adapter.discover(city_id))
     canonical_businesses = score_businesses(reconcile_businesses(raw_records))
     businesses_by_id = {business.canonical_id: business for business in canonical_businesses}
+
+    # ── Voronoi-style core assignment ─────────────────────────────────────────
+    # Each business is assigned exclusively to its nearest core.  This prevents
+    # the same business appearing in clusters for two adjacent cores (which was
+    # producing overlapping territories).
+    core_businesses: dict[str, list[CanonicalBusiness]] = defaultdict(list)
+    for business in canonical_businesses:
+        core_businesses[_nearest_core_id(business, city["cores"])].append(business)
+
     clusters = []
     for core in city["cores"]:
-        clusters.extend(detect_clusters(city_id, core["id"], canonical_businesses, tuple(core["center"])))
+        assigned = core_businesses.get(core["id"], [])
+        if assigned:
+            clusters.extend(
+                detect_clusters(city_id, core["id"], assigned, tuple(core["center"]))
+            )
+
     territories = generate_territories(
         {**city, "country_code": city["country_code"]},
         clusters,

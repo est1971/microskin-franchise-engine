@@ -35,6 +35,9 @@ def detect_clusters(city_id: str, core_id: str, businesses: list[CanonicalBusine
         center = centroid(points)
         distances = [haversine_km(center[0], center[1], pt[0], pt[1]) for pt in points]
         category_mix = Counter(member.category for member in neighborhood)
+        # viable = businesses that cleared a minimum quality bar (score ≥ 4.0 means
+        # at least suitability ~0.5 with a mid-weight category — excludes junk data)
+        viable_count = sum(1 for m in neighborhood if m.weighted_opportunity_score >= 4.0)
         clusters.append(
             ClusterResult(
                 cluster_id=f"cluster-{slugify(city_id)}-{slugify(core_id)}-{len(clusters)+1}",
@@ -43,6 +46,7 @@ def detect_clusters(city_id: str, core_id: str, businesses: list[CanonicalBusine
                 business_ids=ids,
                 raw_business_count=len(neighborhood),
                 weighted_business_count=round(cluster_weight, 2),
+                viable_business_count=viable_count,
                 category_mix=dict(category_mix),
                 density_score=round(min(1.0, cluster_weight / max(max(distances, default=1), 1)), 2),
                 radius_km=round(max(distances, default=0.5) + 0.6, 2),

@@ -29,7 +29,10 @@ def generate_territories(city: dict, clusters: list[ClusterResult], businesses_b
             polygon_geojson = _territory_polygon(points, 0.02 if city["country_code"] == "US" else 0.03)
             opportunity_summary = {
                 "raw_business_count": cluster.raw_business_count,
-                "weighted_viable_count": round(cluster.weighted_business_count * 10.5, 1),
+                # viable_business_count is the count of businesses that cleared
+                # the quality threshold (weighted_opportunity_score >= 4.0) —
+                # directly comparable to the 80-120 viable opportunities target.
+                "weighted_viable_count": float(cluster.viable_business_count),
                 "category_mix": cluster.category_mix,
                 "density_score": cluster.density_score,
                 "travel_efficiency": cluster.travel_efficiency,

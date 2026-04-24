@@ -19,15 +19,53 @@ FIELD_MASK = (
     "places.websiteUri,places.types,places.businessStatus"
 )
 
-# Maps our internal category → Google Places included types
-CATEGORY_TYPE_MAP: list[tuple[str, list[str]]] = [
-    ("dermatologist",                    ["doctor"]),
-    ("aesthetic_clinic",                 ["beauty_salon"]),
-    ("med_spa",                          ["spa"]),
-    ("hospital_dermatology_department",  ["hospital"]),
-    ("pmu_artist",                       ["beauty_salon"]),
-    ("premium_salon",                    ["hair_salon", "beauty_salon"]),
+# ── Medical / aesthetic categories ────────────────────────────────────────────
+# Use searchText (keyword-driven) for precision — avoids the catch-all "doctor"
+# type that returns dentists, physios, astrologers, parking lots, etc.
+# Multiple query strings per category; results are deduplicated by seen_ids.
+TEXT_SEARCH_MAP: list[tuple[str, list[str]]] = [
+    ("dermatologist", [
+        "dermatology clinic",
+        "skin specialist",
+        "dermatologist",
+        "skin doctor clinic",
+    ]),
+    ("aesthetic_clinic", [
+        "aesthetic clinic",
+        "cosmetic clinic",
+        "skin care clinic",
+        "facial aesthetic centre",
+    ]),
+    ("med_spa", [
+        "medical spa",
+        "medi spa",
+        "medispa aesthetic",
+    ]),
+    ("hospital_dermatology_department", [
+        "hospital dermatology department",
+        "skin hospital",
+        "dermatology hospital",
+    ]),
 ]
+
+# ── Venue categories ───────────────────────────────────────────────────────────
+# searchNearby works well here — these map cleanly to Google place types.
+NEARBY_SEARCH_MAP: list[tuple[str, list[str]]] = [
+    ("pmu_artist",    ["beauty_salon"]),
+    ("premium_salon", ["hair_salon", "beauty_salon"]),
+]
+
+# Google place types that flag a business as irrelevant for Microskin —
+# applied as a post-filter after every search.
+EXCLUDE_TYPES: set[str] = {
+    "dentist", "dental_clinic", "orthodontist",
+    "eye_care_clinic", "optometrist", "optician", "ophthalmologist",
+    "physiotherapist", "physical_therapist",
+    "parking", "parking_lot", "car_wash", "gas_station",
+    "restaurant", "cafe", "food", "bar", "night_club",
+    "real_estate_agency", "lodging", "hotel",
+    "veterinary_care", "astrologer",
+}
 
 
 class ProviderAdapter:
@@ -59,7 +97,32 @@ class GooglePlacesAdapter(ProviderAdapter):
         for core in city["cores"]:
             center_lat, center_lng = core["center"]
 
-            for internal_category, google_types in CATEGORY_TYPE_MAP:
+            # ── searchText: medical / aesthetic categories ─────────────────
+            for internal_category, queries in TEXT_SEARCH_MAP:
+                for query in queries:
+                    try:
+                        batch = self._text_search(
+                            query=query,
+                            lat=center_lat,
+                            lng=center_lng,
+                            radius_m=5000,
+                            city_id=city_id,
+                            country_code=city["country_code"],
+                            internal_category=internal_category,
+                        )
+                        for record in batch:
+                            if record.record_id not in seen_ids:
+                                seen_ids.add(record.record_id)
+                                records.append(record)
+                        time.sleep(0.08)
+                    except Exception as exc:  # noqa: BLE001
+                        print(
+                            f"[GooglePlaces:text] {city_id}/{internal_category}"
+                            f" '{query}' failed: {exc}"
+                        )
+
+            # ── searchNearby: venue categories ─────────────────────────────
+            for internal_category, google_types in NEARBY_SEARCH_MAP:
                 try:
                     batch = self._nearby_search(
                         lat=center_lat,
@@ -74,16 +137,53 @@ class GooglePlacesAdapter(ProviderAdapter):
                         if record.record_id not in seen_ids:
                             seen_ids.add(record.record_id)
                             records.append(record)
-
-                    time.sleep(0.08)  # ~12 req/s — well within quota
-
+                    time.sleep(0.08)
                 except Exception as exc:  # noqa: BLE001
                     print(
-                        f"[GooglePlaces] {city_id}/{internal_category} failed: {exc}"
+                        f"[GooglePlaces:nearby] {city_id}/{internal_category} failed: {exc}"
                     )
 
         return records
 
+    # ── searchText ─────────────────────────────────────────────────────────────
+    def _text_search(
+        self,
+        query: str,
+        lat: float,
+        lng: float,
+        radius_m: float,
+        city_id: str,
+        country_code: str,
+        internal_category: str,
+    ) -> list[BusinessRecord]:
+        headers = {
+            "X-Goog-Api-Key": GOOGLE_API_KEY,
+            "Content-Type": "application/json",
+            "X-Goog-FieldMask": FIELD_MASK,
+        }
+        payload = {
+            "textQuery": query,
+            "locationRestriction": {
+                "circle": {
+                    "center": {"latitude": lat, "longitude": lng},
+                    "radius": float(radius_m),
+                }
+            },
+            "maxResultCount": 20,
+        }
+
+        resp = httpx.post(
+            PLACES_TEXT_URL, json=payload, headers=headers, timeout=15
+        )
+        resp.raise_for_status()
+
+        return [
+            self._to_record(place, city_id, country_code, internal_category)
+            for place in resp.json().get("places", [])
+            if self._is_relevant(place)
+        ]
+
+    # ── searchNearby ───────────────────────────────────────────────────────────
     def _nearby_search(
         self,
         lat: float,
@@ -119,7 +219,15 @@ class GooglePlacesAdapter(ProviderAdapter):
         return [
             self._to_record(place, city_id, country_code, internal_category)
             for place in resp.json().get("places", [])
+            if self._is_relevant(place)
         ]
+
+    # ── helpers ────────────────────────────────────────────────────────────────
+    @staticmethod
+    def _is_relevant(place: dict) -> bool:
+        """Return False if Google's type list contains an excluded category."""
+        place_types = set(place.get("types", []))
+        return not (place_types & EXCLUDE_TYPES)
 
     @staticmethod
     def _to_record(

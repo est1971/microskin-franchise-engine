@@ -191,8 +191,14 @@ function renderCity(cityDetail) {
       </div>` : ''}
     ${territories.map((territory) => `
       <div class="territory-card" data-territory="${territory.territory_id}">
-        <div class="row"><strong>${territory.territory_name}</strong><span class="badge ${territory.status}">${territory.status.replace('_', ' ')}</span></div>
-        <div class="row"><span>Viability</span><strong>${territory.viability_score}</strong></div>
+        <div class="row">
+          <strong>${territory.territory_name}</strong>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="tier-badge tier-${territory.tier || 'Standard'}">${territory.tier || 'Standard'}</span>
+            <span class="badge ${territory.status}">${territory.status.replace('_', ' ')}</span>
+          </div>
+        </div>
+        <div class="row"><span>Opportunity score</span><strong>${(territory.opportunity_score || 0).toFixed(1)}</strong></div>
         <div class="row"><span>Viable opportunities</span><strong>${territory.opportunity_summary.weighted_viable_count}</strong></div>
         <div class="row"><span>Travel efficiency</span><strong>${territory.opportunity_summary.travel_efficiency}</strong></div>
         <div class="row"><span>Validation</span><strong>${territory.validation_status}</strong></div>
@@ -228,10 +234,16 @@ function renderTerritory(territory) {
 
   const panel = document.getElementById('territory-panel');
   panel.innerHTML = `
-    <div class="row"><strong>${territory.territory_name}</strong><span class="badge ${territory.status}">${territory.status.replace('_', ' ')}</span></div>
+    <div class="row">
+      <strong>${territory.territory_name}</strong>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span class="tier-badge tier-${territory.tier || 'Standard'}">${territory.tier || 'Standard'}</span>
+        <span class="badge ${territory.status}">${territory.status.replace('_', ' ')}</span>
+      </div>
+    </div>
     <p class="muted">${territory.written_boundary_description}</p>
     <div class="kpi-grid">
-      <div class="mini"><span>Opportunity score</span><strong>${territory.viability_score}</strong></div>
+      <div class="mini"><span>Opportunity score</span><strong>${(territory.opportunity_score || 0).toFixed(1)}</strong></div>
       <div class="mini"><span>Contractability</span><strong>${territory.contractability_score}</strong></div>
       <div class="mini"><span>Viable count</span><strong>${territory.opportunity_summary.weighted_viable_count}</strong></div>
       <div class="mini"><span>Raw businesses</span><strong>${territory.opportunity_summary.raw_business_count}</strong></div>

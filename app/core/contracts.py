@@ -70,6 +70,7 @@ class ClusterResult(BaseModel):
     raw_business_count: int
     weighted_business_count: float
     viable_business_count: int = 0   # businesses with weighted_opportunity_score >= 4.0
+    opportunity_score: float = 0.0   # Σ(category_weight × suitability_score) — primary valuation driver
     category_mix: dict[str, int]
     density_score: float
     radius_km: float
@@ -109,6 +110,8 @@ class TerritoryResult(BaseModel):
     corridor_streets: list[str]
     written_boundary_description: str
     viability_score: float
+    opportunity_score: float = 0.0   # drives tier and franchise fee
+    tier: str = "Standard"           # Platinum / Gold / Silver / Standard
     opportunity_summary: dict[str, Any]
     validation_status: str
     contractability_score: float

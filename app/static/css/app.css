@@ -113,6 +113,15 @@ body {
 .badge.reserved { background: rgba(185, 130, 31, 0.14); color: var(--warn); }
 .badge.sold { background: rgba(187, 93, 74, 0.14); color: var(--danger); }
 .badge.under_review { background: rgba(94, 123, 200, 0.14); color: var(--review); }
+/* ── Territory tier badges ── */
+.tier-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 9px; border-radius: 999px; font-size: 0.74rem; font-weight: 700;
+}
+.tier-Platinum { background: linear-gradient(135deg,#e8d5f5,#d0b0ef); color: #5a1e8a; }
+.tier-Gold     { background: linear-gradient(135deg,#fff0c0,#ffe080); color: #7a5500; }
+.tier-Silver   { background: linear-gradient(135deg,#e8edf2,#d0d8e4); color: #3a4a5a; }
+.tier-Standard { background: rgba(95,111,105,0.12); color: var(--muted); }
 .legend { display: flex; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: 0.82rem; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
 .legend-dot.available { background: var(--ok); }

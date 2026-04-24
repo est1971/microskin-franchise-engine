@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import math
 import os
 import time
 
 import httpx
 
 from app.core.contracts import BusinessRecord
+from app.core.utils import haversine_km
 from app.data.fixtures.demo_data import BUSINESS_FIXTURES, CITY_FIXTURES
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "")
@@ -19,44 +21,47 @@ FIELD_MASK = (
     "places.websiteUri,places.types,places.businessStatus"
 )
 
-# ── Medical / aesthetic categories ────────────────────────────────────────────
-# Use searchText (keyword-driven) for precision — avoids the catch-all "doctor"
-# type that returns dentists, physios, astrologers, parking lots, etc.
-# Multiple query strings per category; results are deduplicated by seen_ids.
+# ── Search categories ─────────────────────────────────────────────────────────
+# Text search: keyword-driven, catches the full range of Microskin-relevant
+# business types.  No demographic filtering — we search the entire metro.
 TEXT_SEARCH_MAP: list[tuple[str, list[str]]] = [
+    ("hospital", [
+        "private hospital",
+        "medical centre",
+        "health clinic hospital",
+    ]),
     ("dermatologist", [
+        "dermatologist",
         "dermatology clinic",
         "skin specialist",
-        "dermatologist",
-        "skin doctor clinic",
     ]),
     ("aesthetic_clinic", [
         "aesthetic clinic",
         "cosmetic clinic",
         "skin care clinic",
-        "facial aesthetic centre",
+    ]),
+    ("plastic_surgery", [
+        "plastic surgeon",
+        "cosmetic surgery clinic",
     ]),
     ("med_spa", [
         "medical spa",
         "medi spa",
-        "medispa aesthetic",
+        "skin rejuvenation clinic",
     ]),
-    ("hospital_dermatology_department", [
-        "hospital dermatology department",
-        "skin hospital",
-        "dermatology hospital",
+    ("general_practice", [
+        "GP clinic",
+        "family medical practice",
     ]),
 ]
 
-# ── Venue categories ───────────────────────────────────────────────────────────
-# searchNearby works well here — these map cleanly to Google place types.
+# Nearby search: maps to Google place types cleanly
 NEARBY_SEARCH_MAP: list[tuple[str, list[str]]] = [
-    ("pmu_artist",    ["beauty_salon"]),
-    ("premium_salon", ["hair_salon", "beauty_salon"]),
+    ("beauty_spa",     ["spa", "beauty_salon"]),
+    ("premium_salon",  ["hair_salon"]),
 ]
 
-# Google place types that flag a business as irrelevant for Microskin —
-# applied as a post-filter after every search.
+# Post-filter: remove clearly irrelevant businesses returned by Google
 EXCLUDE_TYPES: set[str] = {
     "dentist", "dental_clinic", "orthodontist",
     "eye_care_clinic", "optometrist", "optician", "ophthalmologist",
@@ -66,6 +71,54 @@ EXCLUDE_TYPES: set[str] = {
     "real_estate_agency", "lodging", "hotel",
     "veterinary_care", "astrologer",
 }
+
+# ── Grid spacing and search radius per grid point ─────────────────────────────
+# Grid points are spaced GRID_SPACING_KM apart.  Each point searches
+# SEARCH_RADIUS_M around itself.  Overlap ensures no gaps between cells.
+GRID_SPACING_KM  = 5.0
+SEARCH_RADIUS_M  = 5000      # 5 km per grid point — overlaps adjacent cells
+
+
+def _metro_grid(center_lat: float, center_lng: float, metro_radius_km: float) -> list[tuple[float, float]]:
+    """
+    Generate a lat/lng grid covering the full metro area.
+    Returns points within metro_radius_km of the city centre.
+    Grid is spaced GRID_SPACING_KM apart, giving overlapping 5 km search circles.
+    """
+    lat_step  = GRID_SPACING_KM / 111.0
+    lng_step  = GRID_SPACING_KM / (111.0 * max(math.cos(math.radians(center_lat)), 0.01))
+
+    lat_extent = metro_radius_km / 111.0
+    lng_extent = metro_radius_km / (111.0 * max(math.cos(math.radians(center_lat)), 0.01))
+
+    points: list[tuple[float, float]] = []
+    lat = center_lat - lat_extent
+    while lat <= center_lat + lat_extent + lat_step * 0.5:
+        lng = center_lng - lng_extent
+        while lng <= center_lng + lng_extent + lng_step * 0.5:
+            if haversine_km(center_lat, center_lng, lat, lng) <= metro_radius_km:
+                points.append((round(lat, 6), round(lng, 6)))
+            lng += lng_step
+        lat += lat_step
+    return points
+
+
+def _search_radius_km(city: dict) -> float:
+    """Derive metro search radius from population context if not explicitly set."""
+    if "search_radius_km" in city:
+        return float(city["search_radius_km"])
+    pop = city.get("population_context", 500_000)
+    if pop >= 8_000_000:
+        return 40.0
+    if pop >= 5_000_000:
+        return 35.0
+    if pop >= 2_000_000:
+        return 28.0
+    if pop >= 1_000_000:
+        return 22.0
+    if pop >= 500_000:
+        return 16.0
+    return 12.0
 
 
 class ProviderAdapter:
@@ -84,28 +137,33 @@ class GooglePlacesAdapter(ProviderAdapter):
 
     def discover(self, city_id: str) -> list[BusinessRecord]:
         if not GOOGLE_API_KEY:
-            # No API key — fall back to fixtures so the engine still runs
+            # No key — fall back to fixtures so the engine still runs in dev
             return super().discover(city_id)
 
         city = next((c for c in CITY_FIXTURES if c["id"] == city_id), None)
         if not city:
             return []
 
+        center_lat, center_lng = city["center"]
+        radius_km = _search_radius_km(city)
+        grid_points = _metro_grid(center_lat, center_lng, radius_km)
+
         records: list[BusinessRecord] = []
         seen_ids: set[str] = set()
 
-        for core in city["cores"]:
-            center_lat, center_lng = core["center"]
+        total_points = len(grid_points)
+        print(f"[GooglePlaces] {city_id}: {total_points} grid points × {radius_km} km radius")
 
-            # ── searchText: medical / aesthetic categories ─────────────────
+        for idx, (pt_lat, pt_lng) in enumerate(grid_points):
+            # ── Text search: medical/aesthetic categories ──────────────────
             for internal_category, queries in TEXT_SEARCH_MAP:
                 for query in queries:
                     try:
                         batch = self._text_search(
                             query=query,
-                            lat=center_lat,
-                            lng=center_lng,
-                            radius_m=5000,
+                            lat=pt_lat,
+                            lng=pt_lng,
+                            radius_m=SEARCH_RADIUS_M,
                             city_id=city_id,
                             country_code=city["country_code"],
                             internal_category=internal_category,
@@ -114,20 +172,17 @@ class GooglePlacesAdapter(ProviderAdapter):
                             if record.record_id not in seen_ids:
                                 seen_ids.add(record.record_id)
                                 records.append(record)
-                        time.sleep(0.08)
+                        time.sleep(0.06)
                     except Exception as exc:  # noqa: BLE001
-                        print(
-                            f"[GooglePlaces:text] {city_id}/{internal_category}"
-                            f" '{query}' failed: {exc}"
-                        )
+                        print(f"[GooglePlaces:text] {city_id}/{internal_category} '{query}' @ pt{idx} failed: {exc}")
 
-            # ── searchNearby: venue categories ─────────────────────────────
+            # ── Nearby search: beauty/salon categories ─────────────────────
             for internal_category, google_types in NEARBY_SEARCH_MAP:
                 try:
                     batch = self._nearby_search(
-                        lat=center_lat,
-                        lng=center_lng,
-                        radius_m=5000,
+                        lat=pt_lat,
+                        lng=pt_lng,
+                        radius_m=SEARCH_RADIUS_M,
                         included_types=google_types,
                         city_id=city_id,
                         country_code=city["country_code"],
@@ -137,12 +192,11 @@ class GooglePlacesAdapter(ProviderAdapter):
                         if record.record_id not in seen_ids:
                             seen_ids.add(record.record_id)
                             records.append(record)
-                    time.sleep(0.08)
+                    time.sleep(0.06)
                 except Exception as exc:  # noqa: BLE001
-                    print(
-                        f"[GooglePlaces:nearby] {city_id}/{internal_category} failed: {exc}"
-                    )
+                    print(f"[GooglePlaces:nearby] {city_id}/{internal_category} @ pt{idx} failed: {exc}")
 
+        print(f"[GooglePlaces] {city_id}: discovered {len(records)} unique businesses")
         return records
 
     # ── searchText ─────────────────────────────────────────────────────────────
@@ -171,12 +225,8 @@ class GooglePlacesAdapter(ProviderAdapter):
             },
             "maxResultCount": 20,
         }
-
-        resp = httpx.post(
-            PLACES_TEXT_URL, json=payload, headers=headers, timeout=15
-        )
+        resp = httpx.post(PLACES_TEXT_URL, json=payload, headers=headers, timeout=15)
         resp.raise_for_status()
-
         return [
             self._to_record(place, city_id, country_code, internal_category)
             for place in resp.json().get("places", [])
@@ -210,32 +260,20 @@ class GooglePlacesAdapter(ProviderAdapter):
             "maxResultCount": 20,
             "rankPreference": "DISTANCE",
         }
-
-        resp = httpx.post(
-            PLACES_NEARBY_URL, json=payload, headers=headers, timeout=15
-        )
+        resp = httpx.post(PLACES_NEARBY_URL, json=payload, headers=headers, timeout=15)
         resp.raise_for_status()
-
         return [
             self._to_record(place, city_id, country_code, internal_category)
             for place in resp.json().get("places", [])
             if self._is_relevant(place)
         ]
 
-    # ── helpers ────────────────────────────────────────────────────────────────
     @staticmethod
     def _is_relevant(place: dict) -> bool:
-        """Return False if Google's type list contains an excluded category."""
-        place_types = set(place.get("types", []))
-        return not (place_types & EXCLUDE_TYPES)
+        return not (set(place.get("types", [])) & EXCLUDE_TYPES)
 
     @staticmethod
-    def _to_record(
-        place: dict,
-        city_id: str,
-        country_code: str,
-        internal_category: str,
-    ) -> BusinessRecord:
+    def _to_record(place: dict, city_id: str, country_code: str, internal_category: str) -> BusinessRecord:
         loc = place.get("location", {})
         return BusinessRecord(
             record_id=f"gp_{place['id']}",
@@ -261,12 +299,12 @@ class GooglePlacesAdapter(ProviderAdapter):
 
 
 class OvertureAdapter(ProviderAdapter):
-    """Overture Maps open-data integration — planned Phase 2."""
+    """Overture Maps open-data — planned Phase 2."""
     provider_name = "overture"
 
 
 class MapboxSearchAdapter(ProviderAdapter):
-    """Mapbox Search integration — planned Phase 2."""
+    """Mapbox Search — planned Phase 2."""
     provider_name = "mapbox_search"
 
 

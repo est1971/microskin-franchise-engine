@@ -38,21 +38,62 @@ class AppConfig:
             "viable_opportunities_max": 120,
         }
     )
+    # ── Category weights ─────────────────────────────────────────────────────
+    # Weights reflect how likely Microskin treatments can be placed in each
+    # business type.  No demographic or location assumptions — pure category
+    # relevance.  The same weights apply to every country.
     category_weights: dict = field(
         default_factory=lambda: {
-            "dermatologist": 1.2,
-            "aesthetic_clinic": 1.0,
-            "med_spa": 0.9,
-            "hospital_dermatology_department": 0.8,
-            "pmu_artist": 0.7,
-            "premium_salon": 0.5,
+            "hospital":                         1.5,
+            "dermatologist":                    1.4,
+            "aesthetic_clinic":                 1.3,
+            "plastic_surgery":                  1.2,
+            "med_spa":                          1.1,
+            "hospital_dermatology_department":  1.1,  # legacy alias
+            "general_practice":                 0.6,
+            "pharmacy":                         0.7,
+            "beauty_spa":                       0.8,
+            "pmu_artist":                       0.7,
+            "premium_salon":                    0.5,
+        }
+    )
+    # ── Territory tier thresholds (opportunity score) ─────────────────────
+    # Opportunity score = Σ(category_weight × suitability_score) per territory
+    territory_tiers: dict = field(
+        default_factory=lambda: {
+            "Platinum": 120,
+            "Gold":      70,
+            "Silver":    35,
+            "Standard":   0,
+        }
+    )
+    # ── Payback years per tier (drives franchise fee) ─────────────────────
+    tier_payback_years: dict = field(
+        default_factory=lambda: {
+            "Platinum": 2.5,
+            "Gold":     2.0,
+            "Silver":   1.5,
+            "Standard": 1.2,
+        }
+    )
+    # ── Market maturity multiplier per maturity label ──────────────────────
+    # Adjusts franchise fee for market development stage.
+    # GDP per capita is NOT a primary valuation driver — it is only used as
+    # a floor check (capped at 12% influence) so no market is undervalued.
+    market_maturity_multipliers: dict = field(
+        default_factory=lambda: {
+            "established":  1.05,
+            "mature":       1.00,
+            "developing":   0.88,
+            "emerging":     0.75,
+            "nascent":      0.65,
         }
     )
     scenario_multipliers: dict = field(
         default_factory=lambda: {
-            "conservative": 0.82,
-            "expected": 1.0,
-            "high_performance": 1.22,
+            "conservative":      0.82,
+            "expected":          1.00,
+            "high_performance":  1.22,
         }
     )
 

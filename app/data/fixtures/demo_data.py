@@ -25,6 +25,7 @@ _BASE_COUNTRY_FIXTURES = [
                 "cluster_radius_km": 4.0,
                 "min_cluster_weight": 5.2,
                 "currency_code": "INR",
+                "market_maturity": "developing",
                 "currency_symbol": "₹",
                 "gbp_rate": 107.0,
                 "product_price_local": 9500.0,
@@ -53,6 +54,7 @@ _BASE_COUNTRY_FIXTURES = [
                 "cluster_radius_km": 3.6,
                 "min_cluster_weight": 4.8,
                 "currency_code": "USD",
+                "market_maturity": "mature",
                 "currency_symbol": "$",
                 "gbp_rate": 1.27,
                 "product_price_local": 115.0,
@@ -81,6 +83,7 @@ _BASE_COUNTRY_FIXTURES = [
                 "cluster_radius_km": 2.0,
                 "min_cluster_weight": 4.0,
                 "currency_code": "SGD",
+                "market_maturity": "mature",
                 "currency_symbol": "S$",
                 "gbp_rate": 1.69,
                 "product_price_local": 150.0,
@@ -122,24 +125,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Delhi",
         "metro": "Delhi NCR",
         "population_context": 33807000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [28.6139, 77.2090],
         "launch_phase": "Foundation",
         "population_rank": 1,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-delhi-central",    "name": "Central Delhi",        "center": [28.6328, 77.2197], "corridors": ["Connaught Place", "Rajendra Place", "Patel Nagar"]},
-            {"id": "in-delhi-south1",     "name": "South Delhi 1",        "center": [28.5308, 77.2439], "corridors": ["Greater Kailash", "Malviya Nagar", "Saket"]},
-            {"id": "in-delhi-south2",     "name": "South Delhi 2",        "center": [28.5678, 77.1992], "corridors": ["Vasant Vihar", "Defence Colony", "Lajpat Nagar"]},
-            {"id": "in-delhi-southwest",  "name": "South West / Dwarka",  "center": [28.5921, 77.0594], "corridors": ["Dwarka Sector 10/11", "Janakpuri", "Uttam Nagar"]},
-            {"id": "in-delhi-west",       "name": "West Delhi",           "center": [28.6256, 77.1106], "corridors": ["Punjabi Bagh", "Rajouri Garden", "Janakpuri"]},
-            {"id": "in-delhi-northwest",  "name": "North West Delhi",     "center": [28.7041, 77.1040], "corridors": ["Rohini", "Pitampura", "Shalimar Bagh"]},
-            {"id": "in-delhi-north",      "name": "North Delhi",          "center": [28.6812, 77.2213], "corridors": ["Civil Lines", "Mukherjee Nagar", "Model Town"]},
-            {"id": "in-delhi-northeast",  "name": "North East Delhi",     "center": [28.6556, 77.2900], "corridors": ["Shahdara", "Anand Vihar", "Preet Vihar"]},
-            {"id": "in-delhi-east",       "name": "East Delhi",           "center": [28.6215, 77.2900], "corridors": ["Laxmi Nagar", "Mayur Vihar", "Patparganj"]},
-            {"id": "in-gurugram",         "name": "Gurugram",             "center": [28.4595, 77.0266], "corridors": ["Golf Course Road", "DLF Cyber City", "Sohna Road"]},
-            {"id": "in-noida",            "name": "Noida",                "center": [28.5355, 77.3910], "corridors": ["Sector 18", "Sector 62", "Film City Road"]},
-        ],
     },
 
     {
@@ -149,22 +140,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Maharashtra",
         "metro": "Mumbai Metro",
         "population_context": 21297000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [19.0760, 72.8777],
         "launch_phase": "Foundation",
         "population_rank": 2,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-mumbai-south",       "name": "South Mumbai",           "center": [18.9220, 72.8347], "corridors": ["Pedder Road", "Breach Candy", "Worli"]},
-            {"id": "in-mumbai-central",     "name": "Central Mumbai",         "center": [19.0161, 72.8434], "corridors": ["Lower Parel", "Dadar", "Prabhadevi"]},
-            {"id": "in-bandra",             "name": "Bandra / Santacruz",     "center": [19.0596, 72.8295], "corridors": ["Linking Road", "Hill Road", "SV Road"]},
-            {"id": "in-andheri",            "name": "Andheri / Jogeshwari",   "center": [19.1197, 72.8464], "corridors": ["SV Road Andheri", "Lokhandwala", "Marol MIDC"]},
-            {"id": "in-goregaon",           "name": "Goregaon / Malad",       "center": [19.1600, 72.8491], "corridors": ["Malad Link Road", "Goregaon Filmcity Road"]},
-            {"id": "in-borivali",           "name": "Borivali / Kandivali",   "center": [19.2294, 72.8567], "corridors": ["Borivali Station", "Western Express Highway"]},
-            {"id": "in-mumbai-east",        "name": "Eastern Suburbs",        "center": [19.0760, 72.9089], "corridors": ["LBS Marg Ghatkopar", "Chembur", "Vikhroli"]},
-            {"id": "in-powai",              "name": "Powai / Mulund",         "center": [19.1235, 72.9060], "corridors": ["Hiranandani Powai", "Mulund Goregaon Link Road"]},
-            {"id": "in-thane",              "name": "Thane / Navi Mumbai",    "center": [19.1813, 73.0044], "corridors": ["Ghodbunder Road", "Vashi Sector Hub", "Palm Beach Road"]},
-        ],
     },
 
     {
@@ -174,18 +155,12 @@ _BASE_CITY_FIXTURES = [
         "region": "West Bengal",
         "metro": "Kolkata Metro",
         "population_context": 15333000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [22.5726, 88.3639],
         "launch_phase": "Foundation",
         "population_rank": 3,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-kolkata-central",  "name": "Central / Park Street",    "center": [22.5518, 88.3676], "corridors": ["Park Street", "Camac Street", "Ballygunge Place"]},
-            {"id": "in-kolkata-north",    "name": "North Kolkata",             "center": [22.6050, 88.3668], "corridors": ["Shyambazar", "Dum Dum Road", "Ultadanga"]},
-            {"id": "in-kolkata-south",    "name": "South Kolkata",             "center": [22.4970, 88.3640], "corridors": ["Tollygunge", "Jadavpur", "Garia"]},
-            {"id": "in-kolkata-east",     "name": "East / Salt Lake–New Town", "center": [22.5958, 88.4315], "corridors": ["Salt Lake Sector V", "New Town DLF", "Rajarhat"]},
-            {"id": "in-howrah",           "name": "Howrah",                    "center": [22.5900, 88.2952], "corridors": ["GT Road Howrah", "Shibpur", "Santragachi"]},
-        ],
     },
 
     {
@@ -195,20 +170,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Karnataka",
         "metro": "Bengaluru Metro",
         "population_context": 14082000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [12.9716, 77.5946],
         "launch_phase": "Foundation",
         "population_rank": 4,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-blr-central",       "name": "Central / MG Road",      "center": [12.9766, 77.6009], "corridors": ["MG Road", "UB City", "Cunningham Road"]},
-            {"id": "in-blr-koramangala",   "name": "SE / Koramangala–HSR",   "center": [12.9352, 77.6245], "corridors": ["Koramangala 5th Block", "80 Feet Road", "HSR Layout"]},
-            {"id": "in-blr-jayanagar",     "name": "South / Jayanagar",      "center": [12.9282, 77.5937], "corridors": ["Jayanagar 4th Block", "JP Nagar 24th Main", "Banashankari"]},
-            {"id": "in-blr-electronic",    "name": "South 2 / Electronic City","center": [12.8399, 77.6770], "corridors": ["Electronic City", "Bannerghatta Main Road"]},
-            {"id": "in-blr-whitefield",    "name": "East / Whitefield",       "center": [12.9698, 77.7500], "corridors": ["Whitefield Forum", "Marathahalli Bridge Road", "ITPL"]},
-            {"id": "in-blr-hebbal",        "name": "North / Hebbal",          "center": [13.0358, 77.5970], "corridors": ["Hebbal", "Yelahanka New Town", "Banaswadi"]},
-            {"id": "in-blr-rajajinagar",   "name": "West / Rajajinagar",      "center": [12.9948, 77.5556], "corridors": ["Rajajinagar 2nd Block", "Malleshwaram 8th Cross"]},
-        ],
     },
 
     {
@@ -218,19 +185,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Tamil Nadu",
         "metro": "Chennai Metro",
         "population_context": 11235000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [13.0827, 80.2707],
         "launch_phase": "Foundation",
         "population_rank": 5,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-chennai-central",  "name": "Central / Egmore",      "center": [13.0827, 80.2707], "corridors": ["Egmore Nelson Manickam Road", "Kilpauk Medical Hub", "Nungambakkam High Road"]},
-            {"id": "in-chennai-mylapore", "name": "South 1 / Mylapore",    "center": [13.0368, 80.2676], "corridors": ["Alwarpet", "Mylapore", "Royapettah"]},
-            {"id": "in-chennai-adyar",    "name": "South 2 / Adyar",       "center": [12.9941, 80.2224], "corridors": ["Adyar LB Road", "Velachery Main Road", "Guindy"]},
-            {"id": "in-chennai-annanagar","name": "West / Anna Nagar",      "center": [13.0850, 80.2101], "corridors": ["Anna Nagar 2nd Ave", "Vadapalani"]},
-            {"id": "in-chennai-north",    "name": "North / Perambur",       "center": [13.1143, 80.2548], "corridors": ["Perambur Barracks Road", "Kolathur"]},
-            {"id": "in-chennai-omr",      "name": "OMR IT Corridor",        "center": [12.9010, 80.2279], "corridors": ["OMR Sholinganallur", "Perungudi", "Siruseri"]},
-        ],
     },
 
     {
@@ -240,19 +200,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Telangana",
         "metro": "Hyderabad Metro",
         "population_context": 10534000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [17.3850, 78.4867],
         "launch_phase": "Foundation",
         "population_rank": 6,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-hyd-banjara",      "name": "Banjara Hills / Jubilee Hills", "center": [17.4156, 78.4347], "corridors": ["Banjara Hills Road No 1", "Jubilee Hills"]},
-            {"id": "in-hyd-hitec",        "name": "HiTec City / Gachibowli",      "center": [17.4400, 78.3489], "corridors": ["HiTec City", "Kondapur", "Gachibowli DLF"]},
-            {"id": "in-hyd-secunderabad", "name": "Secunderabad / Ameerpet",       "center": [17.4399, 78.4983], "corridors": ["SD Road Secunderabad", "Ameerpet Market Hub"]},
-            {"id": "in-hyd-kukatpally",   "name": "Kukatpally / Miyapur",          "center": [17.4849, 78.3926], "corridors": ["KPHB Clinic Corridor", "Kukatpally Housing Board"]},
-            {"id": "in-hyd-lbnagar",      "name": "LB Nagar / East",               "center": [17.3496, 78.5535], "corridors": ["LB Nagar Clinic Hub", "Dilsukhnagar"]},
-            {"id": "in-hyd-oldcity",      "name": "Old City / South",              "center": [17.3616, 78.4747], "corridors": ["Abids", "Mehdipatnam", "Malakpet"]},
-        ],
     },
 
     # ── Phase 1 – Tier 1+ (still Foundation tier from roadmap) ──────────────
@@ -264,17 +217,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Gujarat",
         "metro": "Ahmedabad Metro",
         "population_context": 8450000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [23.0225, 72.5714],
         "launch_phase": "Foundation",
         "population_rank": 7,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-ahm-west",   "name": "West / SG Highway",   "center": [23.0225, 72.5714], "corridors": ["CG Road", "SG Highway", "Prahladnagar"]},
-            {"id": "in-ahm-north",  "name": "North / Chandlodia",  "center": [23.1089, 72.5430], "corridors": ["Gota Main Road", "Chandlodia", "Chandkheda"]},
-            {"id": "in-ahm-east",   "name": "East / Maninagar",    "center": [22.9908, 72.6155], "corridors": ["Maninagar Clinic Strip", "Nikol Township"]},
-            {"id": "in-ahm-south",  "name": "South / Vejalpur",    "center": [23.0012, 72.5396], "corridors": ["Vejalpur Main Road", "Jivraj Park", "South Bopal"]},
-        ],
     },
 
     {
@@ -284,17 +232,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Gujarat",
         "metro": "Surat Metro",
         "population_context": 8340000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [21.1702, 72.8311],
         "launch_phase": "Foundation",
         "population_rank": 8,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-surat-south",   "name": "South / Adajan",     "center": [21.1926, 72.7869], "corridors": ["Ghod Dod Road", "Adajan Main Road"]},
-            {"id": "in-surat-central", "name": "Central / Athwalines","center": [21.1702, 72.8311], "corridors": ["Ring Road Clinic Hub", "Nanpura", "Citylight"]},
-            {"id": "in-surat-north",   "name": "North / Katargam",   "center": [21.2195, 72.8311], "corridors": ["Varachha Road", "Katargam", "Udhna"]},
-            {"id": "in-surat-east",    "name": "East / Sachin",       "center": [21.0884, 72.8839], "corridors": ["Althan-Bhestan", "Sachin GIDC"]},
-        ],
     },
 
     {
@@ -304,17 +247,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Maharashtra",
         "metro": "Pune Metro",
         "population_context": 7517000,
+        "search_radius_km": 35,
         "maturity": "viable_now",
         "center": [18.5204, 73.8567],
         "launch_phase": "Foundation",
         "population_rank": 9,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-pune-deccan",    "name": "Central / Deccan",        "center": [18.5204, 73.8567], "corridors": ["FC Road", "Law College Road", "Deccan"]},
-            {"id": "in-pune-koregaon",  "name": "East / Koregaon Park",    "center": [18.5362, 73.8929], "corridors": ["Koregaon Park", "Kalyani Nagar", "Magarpatta"]},
-            {"id": "in-pune-baner",     "name": "West / Baner–Aundh",      "center": [18.5590, 73.8019], "corridors": ["Baner-Pashan Link Road", "Aundh Main Road"]},
-            {"id": "in-pune-pimpri",    "name": "North / Pimpri-Chinchwad","center": [18.6190, 73.7965], "corridors": ["Pimpri Clinic Hub", "Old Mumbai-Pune Highway"]},
-        ],
     },
 
     # ── Phase 2 – Major Cities ───────────────────────────────────────────────
@@ -326,17 +264,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Rajasthan",
         "metro": "Jaipur",
         "population_context": 4336000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [26.9124, 75.7873],
         "launch_phase": "Major Cities",
         "population_rank": 10,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-jpr-civil",    "name": "North / Civil Lines",   "center": [26.9280, 75.8200], "corridors": ["C-Scheme MI Road", "Bani Park"]},
-            {"id": "in-jpr-malviya",  "name": "South / Malviya Nagar", "center": [26.8621, 75.8041], "corridors": ["Malviya Nagar Main Road", "Vaishali Nagar"]},
-            {"id": "in-jpr-jagatpura","name": "East / Jagatpura",      "center": [26.8447, 75.8510], "corridors": ["Tonk Road", "Jagatpura RIICO"]},
-            {"id": "in-jpr-pinkcity", "name": "Old City / Pink City",  "center": [26.9239, 75.8267], "corridors": ["MI Road", "Sodala", "Raja Park"]},
-        ],
     },
 
     {
@@ -346,17 +279,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Lucknow",
         "population_context": 3877000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [26.8467, 80.9462],
         "launch_phase": "Major Cities",
         "population_rank": 11,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-lko-gomti",      "name": "Gomti Nagar",         "center": [26.8381, 81.0042], "corridors": ["Gomti Nagar Vipin Khand", "Mahanagar"]},
-            {"id": "in-lko-hazratganj", "name": "Hazratganj / Central","center": [26.8467, 80.9462], "corridors": ["Hazratganj Clinic Corridor", "MG Road"]},
-            {"id": "in-lko-aliganj",    "name": "Aliganj / North",     "center": [26.8898, 80.9507], "corridors": ["Aliganj Singar Nagar", "Jankipuram"]},
-            {"id": "in-lko-alambagh",   "name": "Alambagh / West",     "center": [26.8066, 80.9270], "corridors": ["Alambagh Clinic Cluster", "Cantonment"]},
-        ],
     },
 
     {
@@ -366,16 +294,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Madhya Pradesh",
         "metro": "Indore",
         "population_context": 3239000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [22.7196, 75.8577],
         "launch_phase": "Major Cities",
         "population_rank": 12,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-ind-palasia",    "name": "Palasia / Vijay Nagar",   "center": [22.7196, 75.8577], "corridors": ["MG Road Palasia", "Sapna-Sangeeta"]},
-            {"id": "in-ind-rajwada",    "name": "Old City / Rajwada",       "center": [22.7207, 75.8474], "corridors": ["Rajwada Market", "South Tukoganj"]},
-            {"id": "in-ind-supercorridor","name":"Super Corridor / East",   "center": [22.6870, 75.8963], "corridors": ["Scheme 54", "Aerodrome Road"]},
-        ],
     },
 
     {
@@ -385,16 +309,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Kanpur",
         "population_context": 3144000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [26.4499, 80.3319],
         "launch_phase": "Major Cities",
         "population_rank": 13,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-knp-civillines", "name": "Civil Lines / Kakadeo",  "center": [26.4651, 80.3318], "corridors": ["Civil Lines", "Kakadeo Market", "Cantt"]},
-            {"id": "in-knp-govindnagar","name": "Govind Nagar / West",    "center": [26.4359, 80.3025], "corridors": ["Govind Nagar Main Road", "Rawatpur"]},
-            {"id": "in-knp-kalyanpur",  "name": "Kalyanpur / East",       "center": [26.4786, 80.2918], "corridors": ["Kalyanpur Clinic Strip", "Transport Nagar"]},
-        ],
     },
 
     {
@@ -404,16 +324,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Maharashtra",
         "metro": "Nagpur",
         "population_context": 3141000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [21.1458, 79.0882],
         "launch_phase": "Major Cities",
         "population_rank": 14,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-ngp-dharampeth", "name": "Dharampeth / West",   "center": [21.1458, 79.0882], "corridors": ["Dharampeth Clinic Strip", "Sitabuldi", "Sadar"]},
-            {"id": "in-ngp-civillines", "name": "Civil Lines / North",  "center": [21.1577, 79.0881], "corridors": ["Civil Lines Medical Hub", "Shivajinagar"]},
-            {"id": "in-ngp-nandanvan",  "name": "Nandanvan / SE",       "center": [21.1127, 79.1092], "corridors": ["Wardha Road Nandanvan", "Manish Nagar"]},
-        ],
     },
 
     {
@@ -423,15 +339,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Andhra Pradesh",
         "metro": "Visakhapatnam",
         "population_context": 2543000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [17.6868, 83.2185],
         "launch_phase": "Major Cities",
         "population_rank": 15,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-vsk-mvp",     "name": "MVP Colony / Steel City",  "center": [17.7392, 83.2703], "corridors": ["MVP Colony Clinic Strip", "Rushikonda"]},
-            {"id": "in-vsk-central", "name": "Beach Road / Central",     "center": [17.6868, 83.2185], "corridors": ["CBM Compound", "Jagadamba Junction", "Seethammadhara"]},
-        ],
     },
 
     {
@@ -441,15 +354,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Madhya Pradesh",
         "metro": "Bhopal",
         "population_context": 2541000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [23.2599, 77.4126],
         "launch_phase": "Major Cities",
         "population_rank": 16,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-bpl-mpnagar",    "name": "New Bhopal / MP Nagar",  "center": [23.2176, 77.4357], "corridors": ["MP Nagar Zone 1", "Arera Colony", "DB Mall"]},
-            {"id": "in-bpl-oldbhopal",  "name": "Old Bhopal / Habibganj", "center": [23.2267, 77.4217], "corridors": ["Habibganj Clinic Strip", "Shahpura"]},
-        ],
     },
 
     {
@@ -459,15 +369,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Bihar",
         "metro": "Patna",
         "population_context": 2525000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [25.5941, 85.1376],
         "launch_phase": "Major Cities",
         "population_rank": 17,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-pat-baileyrd",    "name": "Bailey Road / Boring Road",   "center": [25.6131, 85.1359], "corridors": ["Boring Road Clinic Strip", "Bailey Road", "Fraser Road"]},
-            {"id": "in-pat-rajendranagar","name": "Rajendra Nagar / Danapur",   "center": [25.5914, 85.0836], "corridors": ["Rajendra Nagar", "Danapur Cantonment"]},
-        ],
     },
 
     {
@@ -477,15 +384,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Gujarat",
         "metro": "Vadodara",
         "population_context": 2239000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [22.3072, 73.1812],
         "launch_phase": "Major Cities",
         "population_rank": 18,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-vdr-alkapuri",   "name": "Alkapuri / RC Dutt",  "center": [22.3072, 73.1812], "corridors": ["Alkapuri Clinic Corridor", "RC Dutt Road", "Sayajigunj"]},
-            {"id": "in-vdr-manjalpur",  "name": "Manjalpur / South",   "center": [22.2894, 73.1900], "corridors": ["Manjalpur Main Road", "Waghodia Road"]},
-        ],
     },
 
     {
@@ -495,15 +399,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Tamil Nadu",
         "metro": "Coimbatore",
         "population_context": 2151000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [11.0168, 76.9558],
         "launch_phase": "Major Cities",
         "population_rank": 19,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-cbe-rspuram",    "name": "RS Puram / Race Course",  "center": [11.0011, 76.9633], "corridors": ["RS Puram Clinic Strip", "Race Course Road", "Avinashi Road"]},
-            {"id": "in-cbe-gandhipuram","name": "Gandhipuram / Central",   "center": [11.0168, 76.9558], "corridors": ["DB Road", "Town Hall", "Trichy Road"]},
-        ],
     },
 
     {
@@ -513,15 +414,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Kerala",
         "metro": "Kochi",
         "population_context": 2117000,
+        "search_radius_km": 28,
         "maturity": "viable_now",
         "center": [9.9312, 76.2673],
         "launch_phase": "Major Cities",
         "population_rank": 20,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-kochi-ernakulam","name": "Ernakulam / MG Road",  "center": [9.9312, 76.2673], "corridors": ["MG Road Kochi", "Panampilly Nagar", "Vyttila"]},
-            {"id": "in-kochi-fort",     "name": "Fort Kochi / Island",  "center": [9.9658, 76.2420], "corridors": ["Broadway Clinic Hub", "Kalamassery KINFRA"]},
-        ],
     },
 
     # ── Phase 3 / Tier 2 – Viable ────────────────────────────────────────────
@@ -533,15 +431,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Haryana",
         "metro": "Faridabad",
         "population_context": 1905000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [28.4089, 77.3178],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 21,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-fbd-nit",         "name": "South / NIT",           "center": [28.3833, 77.3214], "corridors": ["NIT Commercial Strip", "Sector 15–16"]},
-            {"id": "in-fbd-ballabhgarh", "name": "Ballabhgarh / North",   "center": [28.4302, 77.3029], "corridors": ["Old Faridabad", "Ballabhgarh Market", "Surajkund"]},
-        ],
     },
 
     {
@@ -551,15 +446,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Punjab",
         "metro": "Ludhiana",
         "population_context": 1796000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [30.9010, 75.8573],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 22,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-ldh-modeltown",  "name": "Model Town / West",  "center": [30.9184, 75.8335], "corridors": ["Model Town Clinic Strip", "Ferozepur Road", "BRS Nagar"]},
-            {"id": "in-ldh-gillrd",     "name": "Gill Road / South",   "center": [30.8791, 75.8722], "corridors": ["Gill Road Clinic Cluster", "Civil Lines"]},
-        ],
     },
 
     {
@@ -569,15 +461,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Agra",
         "population_context": 1760000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [27.1767, 78.0081],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 23,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-agr-sanjayplace","name": "Sanjay Place / Fatehabad","center": [27.1948, 78.0082], "corridors": ["Sanjay Place Clinic Hub", "Fatehabad Road", "Kamla Nagar"]},
-            {"id": "in-agr-bodla",      "name": "Bodla / Trans-Yamuna",   "center": [27.1627, 78.0476], "corridors": ["Cantonment Clinic Strip", "Dayalbagh"]},
-        ],
     },
 
     {
@@ -587,15 +476,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Maharashtra",
         "metro": "Nashik",
         "population_context": 1748000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [19.9975, 73.7898],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 24,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-nsk-collegerd",  "name": "College Road / Gangapur","center": [20.0036, 73.7699], "corridors": ["College Road Aesthetics", "Canada Corner", "Gangapur Road"]},
-            {"id": "in-nsk-satpur",     "name": "Satpur / CIDCO",         "center": [19.9976, 73.8272], "corridors": ["CIDCO Main Road", "Nashik Road Station"]},
-        ],
     },
 
     {
@@ -605,15 +491,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Andhra Pradesh",
         "metro": "Vijayawada",
         "population_context": 1491000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [16.5062, 80.6480],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 30,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-vjw-benzcircle", "name": "Benz Circle / MG Road",       "center": [16.5106, 80.6386], "corridors": ["Benz Circle Clinic Hub", "MG Road"]},
-            {"id": "in-vjw-autonagar",  "name": "Auto Nagar / Krishnalanka",    "center": [16.4954, 80.6583], "corridors": ["Auto Nagar Main Road", "Machavaram"]},
-        ],
     },
 
     {
@@ -623,15 +506,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Maharashtra",
         "metro": "Aurangabad",
         "population_context": 1471000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [19.8762, 75.3433],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 31,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-aur-cidco",     "name": "CIDCO / Adalat Road",  "center": [19.8813, 75.3527], "corridors": ["Adalat Road Clinic Strip", "CIDCO N-4"]},
-            {"id": "in-aur-osmanpura", "name": "Osmanpura / Old City",  "center": [19.8744, 75.3361], "corridors": ["Osmanpura Clinic Hub", "Samarth Nagar"]},
-        ],
     },
 
     {
@@ -641,14 +521,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Jharkhand",
         "metro": "Ranchi",
         "population_context": 1443000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [23.3441, 85.3096],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 32,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-rnc-main", "name": "Ranchi City", "center": [23.3441, 85.3096], "corridors": ["Main Road Clinic Strip", "Hinoo Market", "Lalpur Hub"]},
-        ],
     },
 
     {
@@ -658,14 +536,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Madhya Pradesh",
         "metro": "Jabalpur",
         "population_context": 1440000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [23.1815, 79.9864],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 33,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-jbp-main", "name": "Jabalpur City", "center": [23.1815, 79.9864], "corridors": ["Napier Town / Russell Chowk", "Vijay Nagar"]},
-        ],
     },
 
     {
@@ -675,14 +551,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Jammu & Kashmir",
         "metro": "Srinagar",
         "population_context": 1434000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [34.0837, 74.7973],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 34,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-srg-main", "name": "Srinagar City", "center": [34.0837, 74.7973], "corridors": ["Rajbagh Clinic Corridor", "Residency Road", "Boulevard Road"]},
-        ],
     },
 
     {
@@ -692,14 +566,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Jharkhand",
         "metro": "Jamshedpur",
         "population_context": 1337000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [22.8046, 86.2029],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 35,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-jsr-main", "name": "Jamshedpur City", "center": [22.8046, 86.2029], "corridors": ["Bistupur Main Road", "Sakchi Commercial Strip"]},
-        ],
     },
 
     {
@@ -709,14 +581,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Rajasthan",
         "metro": "Jodhpur",
         "population_context": 1335000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [26.2389, 73.0243],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 36,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-jdh-main", "name": "Jodhpur City", "center": [26.2389, 73.0243], "corridors": ["Residency Road Clinic", "Chopasni Road", "Sardarpura"]},
-        ],
     },
 
     {
@@ -726,14 +596,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Chhattisgarh",
         "metro": "Raipur",
         "population_context": 1317000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [21.2514, 81.6296],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 37,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-rpr-main", "name": "Raipur City", "center": [21.2514, 81.6296], "corridors": ["Shankar Nagar Clinic Strip", "Pandri Market", "GE Road"]},
-        ],
     },
 
     {
@@ -743,14 +611,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Assam",
         "metro": "Guwahati",
         "population_context": 1300000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [26.1445, 91.7362],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 38,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-ghy-main", "name": "Guwahati City", "center": [26.1445, 91.7362], "corridors": ["Ganeshguri Clinic Corridor", "Bhangagarh Hub", "GS Road"]},
-        ],
     },
 
     {
@@ -760,14 +626,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Madhya Pradesh",
         "metro": "Gwalior",
         "population_context": 1282000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [26.2183, 78.1828],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 39,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-gwl-main", "name": "Gwalior City", "center": [26.2183, 78.1828], "corridors": ["Maharaj Bada Clinic Strip", "Thatipur Market", "City Centre"]},
-        ],
     },
 
     {
@@ -777,14 +641,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Jharkhand",
         "metro": "Dhanbad",
         "population_context": 1196000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [23.7957, 86.4304],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 40,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-dbd-main", "name": "Dhanbad City", "center": [23.7957, 86.4304], "corridors": ["Bank More Clinic Strip", "Hirapur Market"]},
-        ],
     },
 
     {
@@ -794,14 +656,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Punjab",
         "metro": "Amritsar",
         "population_context": 1183000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [31.6340, 74.8723],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 41,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-asr-main", "name": "Amritsar City", "center": [31.6340, 74.8723], "corridors": ["Lawrence Road / Ranjit Ave", "Mall Road Hub"]},
-        ],
     },
 
     {
@@ -811,14 +671,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Chandigarh (UT)",
         "metro": "Chandigarh",
         "population_context": 1158000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [30.7333, 76.7794],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 43,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-chd-main", "name": "Chandigarh UA", "center": [30.7333, 76.7794], "corridors": ["Sector 8 Clinic Hub", "Sector 34 Aesthetics Strip", "Panchkula Sector 20"]},
-        ],
     },
 
     {
@@ -828,14 +686,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Karnataka",
         "metro": "Mysuru",
         "population_context": 1088000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [12.2958, 76.6394],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 48,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-mys-main", "name": "Mysuru City", "center": [12.2958, 76.6394], "corridors": ["Kuvempunagar Clinic Corridor", "Nazarbad Market", "JLB Road"]},
-        ],
     },
 
     {
@@ -845,14 +701,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Odisha",
         "metro": "Bhubaneswar",
         "population_context": 1079000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [20.2961, 85.8245],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 49,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-bbsr-main", "name": "Bhubaneswar City", "center": [20.2961, 85.8245], "corridors": ["Sahid Nagar Clinic Strip", "Chandrasekharpur", "Jaydev Vihar"]},
-        ],
     },
 
     {
@@ -862,14 +716,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Kerala",
         "metro": "Thiruvananthapuram",
         "population_context": 1061000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [8.5241, 76.9366],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 51,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-tvm-main", "name": "Thiruvananthapuram City", "center": [8.5241, 76.9366], "corridors": ["MG Road Clinic Strip", "Pattom Road", "Technopark Vicinity"]},
-        ],
     },
 
     {
@@ -879,14 +731,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Punjab",
         "metro": "Jalandhar",
         "population_context": 1044000,
+        "search_radius_km": 22,
         "maturity": "viable_now",
         "center": [31.3260, 75.5762],
         "launch_phase": "Tier 2 Expansion",
         "population_rank": 54,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-jal-main", "name": "Jalandhar City", "center": [31.3260, 75.5762], "corridors": ["Model Town Clinic Corridor", "Civil Lines Hub", "GT Road Strip"]},
-        ],
     },
 
     # ── Phase 4 – Developing / Emerging Markets ──────────────────────────────
@@ -898,15 +748,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Meerut",
         "population_context": 1681000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [28.9845, 77.7064],
         "launch_phase": "Developing Market",
         "population_rank": 25,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-mer-cantonment","name": "Cantonment / West",  "center": [28.9985, 77.6918], "corridors": ["Cantonment Clinic Hub", "Western Kutchery Road"]},
-            {"id": "in-mer-central",   "name": "Central Meerut",     "center": [28.9835, 77.7074], "corridors": ["Lisari Gate Market", "Surya Nagar"]},
-        ],
     },
 
     {
@@ -916,15 +763,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Gujarat",
         "metro": "Rajkot",
         "population_context": 1637000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [22.3039, 70.8022],
         "launch_phase": "Developing Market",
         "population_rank": 26,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-rjk-yagnik",  "name": "Yagnik Road / Kalawad",  "center": [22.3069, 70.7873], "corridors": ["Yagnik Road Clinic Strip", "Kalawad Road"]},
-            {"id": "in-rjk-gondal",  "name": "Gondal Road / South",    "center": [22.2884, 70.7830], "corridors": ["Gondal Road Market", "Bhaktinagar"]},
-        ],
     },
 
     {
@@ -934,15 +778,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Tamil Nadu",
         "metro": "Madurai",
         "population_context": 1594000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [9.9252, 78.1198],
         "launch_phase": "Developing Market",
         "population_rank": 27,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-mdu-annanagar",   "name": "Anna Nagar / KK Nagar", "center": [9.9323, 78.1063], "corridors": ["Anna Nagar Clinic Corridor", "Goripalayam Hospital Strip"]},
-            {"id": "in-mdu-tallakulam",  "name": "Tallakulam / East",     "center": [9.9175, 78.1329], "corridors": ["Alagar Kovil Road Aesthetics", "Tallakulam"]},
-        ],
     },
 
     {
@@ -952,15 +793,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Varanasi",
         "population_context": 1576000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [25.3176, 82.9739],
         "launch_phase": "Developing Market",
         "population_rank": 28,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-var-lanka",     "name": "Lanka / BHU",         "center": [25.2677, 82.9913], "corridors": ["Lanka/BHU Medical Hub", "Sigra Clinic Strip"]},
-            {"id": "in-var-maldahiya", "name": "Maldahiya / Nadesar",  "center": [25.3282, 82.9644], "corridors": ["Nadesar Clinic Hub", "Maldahiya Market"]},
-        ],
     },
 
     {
@@ -970,15 +808,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Prayagraj",
         "population_context": 1536000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [25.4358, 81.8463],
         "launch_phase": "Developing Market",
         "population_rank": 29,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-prg-civillines","name": "Civil Lines / George Town","center": [25.4523, 81.8427], "corridors": ["Civil Lines Clinic Corridor", "MT Road"]},
-            {"id": "in-prg-naini",     "name": "Naini / Phaphamau",       "center": [25.4221, 81.8591], "corridors": ["Naini Bridge Road", "Kareli Market"]},
-        ],
     },
 
     {
@@ -988,14 +823,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Rajasthan",
         "metro": "Kota",
         "population_context": 1172000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [25.2138, 75.8648],
         "launch_phase": "Developing Market",
         "population_rank": 42,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-kota-main", "name": "Kota City", "center": [25.2138, 75.8648], "corridors": ["Talwandi Clinic Strip", "Vigyan Nagar", "Civil Lines"]},
-        ],
     },
 
     {
@@ -1005,14 +838,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Tamil Nadu",
         "metro": "Tiruchirappalli",
         "population_context": 1144000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [10.7905, 78.7047],
         "launch_phase": "Developing Market",
         "population_rank": 44,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-tri-main", "name": "Tiruchirappalli City", "center": [10.7905, 78.7047], "corridors": ["Thillai Nagar Clinic Strip", "Cantonment Main Road"]},
-        ],
     },
 
     {
@@ -1022,14 +853,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Bareilly",
         "population_context": 1100000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [28.3670, 79.4304],
         "launch_phase": "Developing Market",
         "population_rank": 45,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-bre-main", "name": "Bareilly City", "center": [28.3670, 79.4304], "corridors": ["Civil Lines Clinic Corridor", "Subhash Nagar Market"]},
-        ],
     },
 
     {
@@ -1039,14 +868,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Maharashtra",
         "metro": "Solapur",
         "population_context": 1091000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [17.6868, 75.9100],
         "launch_phase": "Developing Market",
         "population_rank": 46,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-sol-main", "name": "Solapur City", "center": [17.6868, 75.9100], "corridors": ["Vijapur Road Clinic Strip", "Budhwar Peth Market"]},
-        ],
     },
 
     {
@@ -1056,14 +883,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Andhra Pradesh",
         "metro": "Guntur",
         "population_context": 1088000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [16.3067, 80.4365],
         "launch_phase": "Developing Market",
         "population_rank": 47,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-gnt-main", "name": "Guntur City", "center": [16.3067, 80.4365], "corridors": ["Brodipet Clinic Hub", "Arundalpet Main Road"]},
-        ],
     },
 
     {
@@ -1073,14 +898,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Telangana",
         "metro": "Warangal",
         "population_context": 1076000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [17.9784, 79.5941],
         "launch_phase": "Developing Market",
         "population_rank": 50,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-wgl-main", "name": "Warangal City", "center": [17.9784, 79.5941], "corridors": ["Hanamkonda Clinic Corridor", "Subedari Market"]},
-        ],
     },
 
     {
@@ -1090,14 +913,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Aligarh",
         "population_context": 1054000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [27.8974, 78.0880],
         "launch_phase": "Developing Market",
         "population_rank": 52,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-alg-main", "name": "Aligarh City", "center": [27.8974, 78.0880], "corridors": ["Civil Lines Clinic Hub", "Marris Road Strip"]},
-        ],
     },
 
     {
@@ -1107,14 +928,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Tamil Nadu",
         "metro": "Salem",
         "population_context": 1050000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [11.6643, 78.1460],
         "launch_phase": "Developing Market",
         "population_rank": 53,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-slm-main", "name": "Salem City", "center": [11.6643, 78.1460], "corridors": ["Fairlands Clinic Strip", "Shevapet Market Hub"]},
-        ],
     },
 
     {
@@ -1124,14 +943,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Tamil Nadu",
         "metro": "Tiruppur",
         "population_context": 1035000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [11.1085, 77.3411],
         "launch_phase": "Developing Market",
         "population_rank": 55,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-tup-main", "name": "Tiruppur City", "center": [11.1085, 77.3411], "corridors": ["Avinashi Road Clinic Strip", "Palladam Road"]},
-        ],
     },
 
     {
@@ -1141,14 +958,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Karnataka",
         "metro": "Hubli-Dharwad",
         "population_context": 1028000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [15.3647, 75.1240],
         "launch_phase": "Developing Market",
         "population_rank": 56,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-hbl-main", "name": "Hubli-Dharwad Twin City", "center": [15.3647, 75.1240], "corridors": ["Hubli Old Town Clinic Hub", "Kasturba Road", "Vivekananda Circle"]},
-        ],
     },
 
     {
@@ -1158,14 +973,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Uttar Pradesh",
         "metro": "Moradabad",
         "population_context": 1022000,
+        "search_radius_km": 22,
         "maturity": "developing_market",
         "center": [28.8386, 78.7733],
         "launch_phase": "Developing Market",
         "population_rank": 57,
         "run_on_startup": False,
-        "cores": [
-            {"id": "in-mbd-main", "name": "Moradabad City", "center": [28.8386, 78.7733], "corridors": ["Civil Lines Clinic Hub", "Ram Ganga Vihar", "Katghar Market"]},
-        ],
     },
 
     # ── USA ──────────────────────────────────────────────────────────────────
@@ -1177,17 +990,12 @@ _BASE_CITY_FIXTURES = [
         "region": "New York / New Jersey",
         "metro": "New York Metro",
         "population_context": 19900000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [40.7128, -74.0060],
         "launch_phase": "Foundation",
         "population_rank": 1,
         "run_on_startup": False,
-        "cores": [
-            {"id": "us-ny-manhattan",    "name": "Manhattan",             "center": [40.7580, -73.9855], "corridors": ["Upper East Side", "Midtown", "Flatiron"]},
-            {"id": "us-ny-brooklyn-queens","name": "Brooklyn / Queens",   "center": [40.6782, -73.9442], "corridors": ["Williamsburg", "Long Island City"]},
-            {"id": "us-ny-long-island",  "name": "Long Island",           "center": [40.7282, -73.7949], "corridors": ["Garden City", "Roslyn", "Great Neck"]},
-            {"id": "us-ny-new-jersey",   "name": "North Jersey Corridor", "center": [40.7440, -74.0324], "corridors": ["Jersey City Waterfront", "Hoboken", "Short Hills"]},
-        ],
     },
 
     {
@@ -1197,16 +1005,12 @@ _BASE_CITY_FIXTURES = [
         "region": "California",
         "metro": "Los Angeles Metro",
         "population_context": 13000000,
+        "search_radius_km": 40,
         "maturity": "viable_now",
         "center": [34.0522, -118.2437],
         "launch_phase": "Major Cities",
         "population_rank": 2,
         "run_on_startup": False,
-        "cores": [
-            {"id": "us-la-westside",      "name": "Westside",              "center": [34.0635, -118.4455], "corridors": ["Beverly Hills", "Santa Monica", "West Hollywood"]},
-            {"id": "us-la-san-fernando",  "name": "San Fernando Valley",   "center": [34.1683, -118.6059], "corridors": ["Studio City", "Calabasas"]},
-            {"id": "us-la-orange-gateway","name": "Orange County Gateway", "center": [33.6846, -117.8265], "corridors": ["Costa Mesa", "Newport Beach"]},
-        ],
     },
 
     # ── Singapore ────────────────────────────────────────────────────────────
@@ -1218,14 +1022,12 @@ _BASE_CITY_FIXTURES = [
         "region": "Singapore",
         "metro": "Singapore",
         "population_context": 5900000,
+        "search_radius_km": 35,
         "maturity": "developing_market",
         "center": [1.3521, 103.8198],
         "launch_phase": "Developing Market",
         "population_rank": 1,
         "run_on_startup": False,
-        "cores": [
-            {"id": "sg-orchard", "name": "Orchard / River Valley", "center": [1.3048, 103.8318], "corridors": ["Orchard Road", "River Valley"]},
-        ],
     },
 ]
 

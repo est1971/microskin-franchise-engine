@@ -3,7 +3,8 @@ from __future__ import annotations
 from functools import lru_cache
 
 from app.data.fixtures.demo_data import CITY_FIXTURES, COUNTRY_FIXTURES
-from app.services.pipeline import global_summary, run_all_pipelines, run_city_pipeline
+from app.engine.city_discovery import all_city_analyses
+from app.services.pipeline import run_all_pipelines, run_city_pipeline
 
 
 @lru_cache(maxsize=1)
@@ -17,7 +18,17 @@ def refresh_results() -> dict:
 
 
 def get_summary() -> dict:
-    return global_summary()
+    """Use cached pipeline results — avoids re-running all Google Places calls."""
+    results = cached_results()
+    city_analyses = all_city_analyses()
+    territories = [t for r in results.values() for t in r.territories]
+    return {
+        "countries": sorted({r.city["country_code"] for r in results.values()}),
+        "cities": len(results),
+        "territories": len(territories),
+        "contract_ready": len([t for t in territories if t.validation_status.startswith("valid")]),
+        "population_logic_warning_count": len([a for a in city_analyses if a["population_only_is_flawed"]]),
+    }
 
 
 def list_countries() -> list[dict]:

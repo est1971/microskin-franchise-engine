@@ -133,9 +133,57 @@ body {
 .mini strong { font-size: 1.1rem; }
 input[type="range"] { width: 100%; accent-color: var(--accent); }
 a.export-link { color: var(--accent); font-weight: 700; text-decoration: none; }
+
+/* ── Scrollable sidebar list (22 countries) ── */
+.sidebar { overflow-y: auto; max-height: 100vh; position: sticky; top: 0; }
+.list { max-height: 58vh; overflow-y: auto; padding-right: 4px; }
+.list::-webkit-scrollbar { width: 4px; }
+.list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ── Region grouping inside country list ── */
+.region-group { margin-bottom: 8px; }
+.region-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin: 10px 0 4px;
+  padding-left: 4px;
+}
+.country-currency {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ── Unloaded city card (lazy) ── */
+.lazy-city { opacity: 0.7; border-style: dashed; }
+.lazy-city:hover { opacity: 1; }
+.chip-muted { background: rgba(95,111,105,0.1); color: var(--muted); }
+
+/* ── Financial header in city panel ── */
+.fin-header { margin-bottom: 4px; }
+
+/* ── Calculator block ── */
+.calc-block {
+  margin: 12px 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(21, 108, 87, 0.05);
+  border: 1px solid rgba(21, 108, 87, 0.10);
+}
+.gbp-note { font-size: 0.8em; color: var(--muted); font-weight: 400; }
+.muted-row { opacity: 0.7; }
+
+/* ── Scenario grid ── */
+.scenarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.scenarios .mini { font-size: 0.82rem; }
+
 @media (max-width: 1080px) {
   .shell { grid-template-columns: 1fr; }
   .grid { grid-template-columns: 1fr; }
-  .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+  .sidebar { border-right: 0; border-bottom: 1px solid var(--border); max-height: none; position: static; }
+  .scenarios { grid-template-columns: 1fr; }
 }
 

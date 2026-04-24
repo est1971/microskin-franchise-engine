@@ -43,6 +43,7 @@ def list_countries() -> list[dict]:
     for country in COUNTRY_FIXTURES:
         cities = [city for city in CITY_FIXTURES if city["country_code"] == country["code"]]
         country_territories = [territory for result in results.values() for territory in result.territories if territory.country_code == country["code"]]
+        md = country["profile"].get("market_defaults", {})
         output.append(
             {
                 "code": country["code"],
@@ -52,6 +53,15 @@ def list_countries() -> list[dict]:
                 "cities": len(cities),
                 "territories": len(country_territories),
                 "contract_ready": len([territory for territory in country_territories if territory.validation_status.startswith("valid")]),
+                # Financial profile — used by the calculator in the frontend
+                "currency_code": md.get("currency_code", "USD"),
+                "currency_symbol": md.get("currency_symbol", "$"),
+                "gbp_rate": md.get("gbp_rate", 1.27),
+                "product_price_local": md.get("product_price_local", 115.0),
+                "consultation_fee_default": md.get("consultation_fee_default", 150.0),
+                "royalty_rate": md.get("royalty_rate", 0.06),
+                "marketing_contribution_rate": md.get("marketing_contribution_rate", 0.01),
+                "connect_fee_monthly_local": md.get("connect_fee_monthly_local", 120.0),
             }
         )
     return output
